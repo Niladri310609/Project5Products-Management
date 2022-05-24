@@ -2,9 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 var multer = require('multer') // HERE
 const route = require('./routes/routes.js');
-
+const { AppConfig } = require('aws-sdk')
 const app = express();
-
+const jwt= require('jsonwebtoken');
 
 
 app.use(bodyParser.json());
