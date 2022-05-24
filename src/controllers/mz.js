@@ -18,7 +18,10 @@ const isValid = function (value) {
     return mongoose.Types.ObjectId.isValid(objectId)
   }
 
-
+const isValidPincode =function(pincode){
+        if (!pincode || pincode.toString().trim().length == 0 || pincode.toString().trim().length != 6) return false;
+        return true;
+}
 
 
 
@@ -27,8 +30,7 @@ const createUser = async function (req, res) {
 
       let data = req.body
      let  data1= JSON.parse(data.data)
-      console.log(data1)
-      
+           
       let {  fname,lname, phone, email, password, address } = data1
 
       let files = req.files
@@ -72,8 +74,8 @@ const createUser = async function (req, res) {
         return res.status(400).send({ status: false, message: "City of shipping address is required..." })
       }
 
-      if(!isValid(address.shipping.pincode)){
-        return res.status(400).send({ status: false, message: "Pincode of shipping address is required..." })
+      if(!isValidPincode(address.shipping.pincode)){
+        return res.status(400).send({ status: false, message: "Shipping pincode must be 6 digit number" })
       }
 
       if(!isValid(address.billing.street)){
@@ -84,8 +86,8 @@ const createUser = async function (req, res) {
         return res.status(400).send({ status: false, message: "City of billing address is required..." })
       }
 
-      if(!isValid(address.billing.pincode)){
-        return res.status(400).send({ status: false, message: "Pincode of billing address is required..." })
+      if(!isValidPincode(address.billing.pincode)){
+        return res.status(400).send({ status: false, message: "Billing pincode must be 6 digit number" })
       }
 
       // from db
