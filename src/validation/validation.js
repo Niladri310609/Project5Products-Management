@@ -13,7 +13,7 @@ const isValidPhone = function (Phone) {
 //validation for Value
 const isValid = function (value) {
     if (typeof value === 'undefined' || value === null) return false
-    if (typeof value === 'string' && value.trim().length === 0) return false
+    if (typeof value !== 'string' || value.trim().length === 0) return false
     return true;
 }
 //validation of  empty string
@@ -34,5 +34,13 @@ const isValidPassword = function (password) {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/
     return passwordRegex.test(password)
 }
+const isValidPincode = function (pincode) {
+  
+    if(isNaN(Number(pincode.toString().trim())))return false
+    if (!pincode || pincode.toString().trim().length == 0 || pincode.toString().trim().length != 6) return false;
+    return true;
+    
+  }
 
-module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail,isValidPhone,isValidPassword,validString}
+
+module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail,isValidPhone,isValidPincode,isValidPassword,validString}
