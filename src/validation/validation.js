@@ -13,12 +13,12 @@ const isValidPhone = function (Phone) {
 //validation for Value
 const isValid = function (value) {
     if (typeof value === 'undefined' || value === null) return false
-    if (typeof value !== 'string' || value.trim().length === 0) return false
+    if (typeof value !== 'string' || value.trim().length === 0|| typeof value=="") return false
     return true;
 }
 //validation of  empty string
 const validString = function (value) {
-    if (typeof value === 'string' && value.trim().length === 0) return false
+    if (typeof value !== 'string' && value.trim().length === 0) return false
     return true;
 }
 //validation for Request Body

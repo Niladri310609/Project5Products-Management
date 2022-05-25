@@ -13,12 +13,9 @@ const createUser = async function (req, res) {
       let { fname, lname, phone, email, password, address } = data1
   
       let files = req.files
-  
-      // const phoneValidator = /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/
-  
-  
-      if (!isValidRequestBody(data1)) {
-        return res.status(400).send({ status: false, message: "Body is required..." })
+      
+   if (!isValidRequestBody(data1)) {
+        return res.status(400).send({ status: false, message: "Input Data for Creating User" })
       }
       
       if (!files) {
@@ -175,7 +172,7 @@ const loginUser = async (req, res) => {
 }
 
 
-//..............................................................
+//.............................................................. get details by User id ============
 let getById=async (req,res)=>{
     try{
         const UserIdData=req.params.userId
@@ -204,9 +201,9 @@ const updateUser = async (req, res) => {
         let userIdFromToken = req.userId
         let { fname, lname, email, phone, password, address } = requestBody;
          
-        if(!isValidRequestBody(requestBody)){
+       /* if(!isValidRequestBody(requestBody)){
             return res.status(400).send({status:false, message:"Input field cannot be empty"})
-        }
+        }*/
 
         if (!isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: `${userId} is not a valid user id` })
@@ -228,17 +225,23 @@ const updateUser = async (req, res) => {
             
         }
 
-       
-
+       //validation for fname
+        if (fname == "") {
+            return res.status(400).send({ status: false, message: "fname cannot be empty" })
+        }
 
         if (fname && !validString(fname)) {
             return res.status(400).send({ status: false, message: 'fname is Required' })
         }
-        /*if (fname) {
+        if (fname) {
             if (!validation.isValid(fname)) {
                 return res.status(400).send({ status: false, message: "Invalid request parameter, please provide fname" })
             }
-        }*/
+        }
+        //validation for lname
+        if (lname == "") {
+            return res.status(400).send({ status: false, message: "lname cannot be empty" })
+        }
         if (lname && !validString(lname)) {
             return res.status(400).send({ status: false, message: 'lname is Required' })
         }
@@ -247,9 +250,10 @@ const updateUser = async (req, res) => {
                 return res.status(400).send({ status: false, message: "Invalid request parameter, please provide lname" })
             }
         }*/
-       /* if (!validation.validString(email)) {
-            return res.status(400).send({ status: false, message: 'email is Required' })
-        }*/
+       //validation for email
+        if (email == "") {
+            return res.status(400).send({ status: false, message: "email cannot be empty" })
+        }
         if (email) {
             if (!isValid(email)) {
                 return res.status(400).send({ status: false, message: "Invalid request parameter, please provide email" })
@@ -265,6 +269,7 @@ const updateUser = async (req, res) => {
        /* if (!validation.validString(phone)) {
             return res.status(400).send({ status: false, message: 'phone number is Required' })
         }*/
+        if(phone=="") return res.status(400).send({status:false ,message:"phone cannot be empty"})
         if (phone) {
             if (!isValid(phone)) {
                 return res.status(400).send({ status: false, message: "Invalid request parameter, please provide Phone number." })
