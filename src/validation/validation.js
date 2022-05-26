@@ -41,6 +41,14 @@ const isValidPincode = function (pincode) {
     return true;
     
   }
+  const validInstallment = function isInteger(value) {
+    if(value < 0) return false
+     if(value % 1 == 0 ) return true
+}
+const validQuantity = function isInteger(value) {
+    if(value < 1) return false
+     if(value % 1 == 0 ) return true
+}
 
 
-module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail,isValidPhone,isValidPincode,isValidPassword,validString}
+module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail,isValidPhone,isValidPincode,isValidPassword,validString,validInstallment,validQuantity}
