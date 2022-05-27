@@ -13,7 +13,7 @@ const isValidPhone = function (Phone) {
 //validation for Value
 const isValid = function (value) {
     if (typeof value === 'undefined' || value === null) return false
-    if (typeof value !== 'string' || value.trim().length === 0|| typeof value=="") return false
+    if (typeof value !== 'string' || value.trim().length === 0) return false
     return true;
 }
 //validation of  empty string
@@ -41,6 +41,11 @@ const isValidPincode = function (pincode) {
     return true;
     
   }
+  const isValidNumber=function(number){
+    if(isNaN(Number(number.toString().trim()))) return false
+    if(!number || number.toString().trim().length==0) return false;
+    return true
+}
   const validInstallment = function isInteger(value) {
     if(value < 0) return false
      if(value % 1 == 0 ) return true
@@ -51,4 +56,4 @@ const validQuantity = function isInteger(value) {
 }
 
 
-module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail,isValidPhone,isValidPincode,isValidPassword,validString,validInstallment,validQuantity}
+module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail,isValidNumber,isValidPhone,isValidPincode,isValidPassword,validString,validInstallment,validQuantity}

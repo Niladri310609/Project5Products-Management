@@ -14,7 +14,7 @@ const createUser = async function (req, res) {
         // ====================================== Destructuring the request Body ======================================
 
 
-        let { fname, lname, phone, email, password, address } = data1
+        let { fname, lname, phone, email, password, address} = data1
 
         //============================================validations for inputs================================
 
@@ -111,6 +111,7 @@ const createUser = async function (req, res) {
         res.status(201).send({ status: true, message: "Success", data: userCreated })
 
     } catch (err) {
+        console.log(err)
         res.status(500).send({ status: false, error: err.message });
     }
 }
@@ -204,11 +205,11 @@ const updateUser = async (req, res) => {
         let requestBody = req.body
         let userId = req.params.userId
         let userIdFromToken = req.userId
-        let { fname, lname, email, phone, password, address } = requestBody;  //destructing body
+        let { fname, lname, email, phone, password, address,profileImage } = requestBody;  //destructing body
 
        // ============================= validation for inputs =============================
 
-         if(!isValidRequestBody(requestBody||files)){
+         if(!isValidRequestBody(requestBody && files)){
              return res.status(400).send({status:false, message:"Input field cannot be empty"})
          }
 
@@ -243,7 +244,7 @@ const updateUser = async (req, res) => {
             return res.status(400).send({ status: false, message: 'fname is Required' })
         }
         if (fname) {
-            if (!validation.isValid(fname)) {
+            if (!isValid(fname)) {
                 return res.status(400).send({ status: false, message: "Invalid request parameter, please provide fname" })
             }
         }
@@ -257,7 +258,7 @@ const updateUser = async (req, res) => {
             return res.status(400).send({ status: false, message: 'lname is Required' })
         }
         if (lname) {
-            if (!validation.isValid(fname)) {
+            if (!isValid(fname)) {
                 return res.status(400).send({ status: false, message: "Invalid request parameter, please provide lname" })
             }
         }
