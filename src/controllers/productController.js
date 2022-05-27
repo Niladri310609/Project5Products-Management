@@ -1,6 +1,6 @@
 const aws = require("aws-sdk");
 const productModel = require('../models/productModel')
-const { isValid, isValidRequestBody, isValidObjectId,isValidNumber, validString,validInstallment } = require('../validation/validation')
+const { isValid, isValidRequestBody, isValidObjectId,isValidNumber, isValidScripts, validString,validInstallment } = require('../validation/validation')
 const { uploadFile } = require('../controllers/awsUpload')
 const currencySymbol = require("currency-symbol-map")
 
@@ -15,27 +15,31 @@ const createProduct = async (req, res) => {
             return res.status(400).send({ status: false, message: 'Invalid params received in request body' })
         }
         if (requestBody.isDeleted && requestBody.isDeleted != "false") {
-            return res.status(400).send({ status: false, data: "isDeleted must be false" })
+            return res.status(400).send({ status: false, message: "Product cannot be deleted while updation" })
         }
 
 
         const { title, description, price, currencyId, isFreeShipping, style, availableSizes, installments } = requestBody;
 
-        if (!isValid(title)) {
-            return res.status(400).send({ status: false, message: 'Title is required' })
-        }
+        // If title is present 
 
+        if (title == "") {
+            return res.status(400).send({ status: false, message: "Title  cannot be empty" })
+        } else if (title) {
+            if (!validString(title)  || !isValidScripts(title))
+                return res.status(400).send({ status: false, message: "Title is invalid (Should Contain Alphabets, numbers, quotation marks  & [@ , . ; : ? & ! _ - $]." })
         const isTitleAlreadyUsed = await productModel.findOne({ title });
 
         if (isTitleAlreadyUsed) {
             return res.status(400).send({ status: false, message: 'Title is already used.' })
         }
+    }
 
-        if (!isValid(description)) {
+        if (!validString(description)) {
             return res.status(400).send({ status: false, message: 'Description is required' })
         }
 
-        if (!isValid(price)) {
+        if (!validString(price)) {
             return res.status(400).send({ status: false, message: 'Price is required' })
         }
 
@@ -46,7 +50,7 @@ const createProduct = async (req, res) => {
             return res.status(400).send({ status: false, message: `Price cannot be Zero` })
         }
 
-        if (!isValid(currencyId)) {
+        if (!validString(currencyId)) {
             return res.status(400).send({ status: false, message: 'CurrencyId is required' })
         }
 
@@ -88,7 +92,7 @@ const createProduct = async (req, res) => {
             productImage: productImageUrl
         }
 
-        if (!isValid(availableSizes)) {
+        if (!validString(availableSizes)) {
             return res.status(400).send({ status: false, message: 'available Sizes is required' })
         }
 
@@ -281,7 +285,7 @@ const updateProduct = async function (req, res) {
         }
     //=============================================== input Body validations ================================================
 
-        if (!(isValidRequestBody(requestBody) && files)) {
+        if (!(isValidRequestBody(requestBody) || files)) {
             return res.status(400).send({ status: false, message: 'Please Input data for Updation' })
         }
     //==============================================================================destructuring================================================
@@ -290,37 +294,33 @@ const updateProduct = async function (req, res) {
         const updatedProductDetails = {}  // considering a empty object
 
 
-        if (fname == "") {
-            return res.status(400).send({ status: false, message: "fname cannot be empty" })
-        }
+       if (title == "") 
+            return res.status(400).send({ status: false, message: "Title  cannot be empty" })
+     if (title) {
+            if  (!isValid(title)  || !isValidScripts(title))
+                return res.status(400).send({ status: false, message: "Title is in invalid format" })
+        const isTitleAlreadyUsed = await productModel.findOne({ title });
 
-        if (fname && !validString(fname)) {
-            return res.status(400).send({ status: false, message: 'fname is Required' })
+        if (isTitleAlreadyUsed) {
+            return res.status(400).send({ status: false, message: 'Title is already used.' })
         }
-        if (fname) {
-            if (!isValid(fname)) {
-                return res.status(400).send({ status: false, message: "Invalid request parameter, please provide fname" })
-            }
-        }
-
-             isTitleAlreadyUsed = await productModel.findOne({ title, _id: { $ne: productId } });
-           
-            if (isTitleAlreadyUsed) {
-                return res.status(400).send({ status: false, message: `${title} title is already used` })
-            }
-
-            if (!updatedProductDetails.hasOwnProperty('title'))
+         if (!updatedProductDetails.hasOwnProperty('title'))
                 updatedProductDetails['title'] = title
+        }
         
-        if(description=="")return res.status(400).send({status:false , message: "description field cannot be empty"})
-        if (isValid(description)) {
+        if (description == "") {
+            return res.status(400).send({ status: false, message: "Description  cannot be empty" })
+        } else if (description) {
+            if (!isValid(title)  || !isValidScripts(title))
+                return res.status(400).send({ status: false, message: "Description is in invalid format" })
+        
             if (!updatedProductDetails.hasOwnProperty('description'))
                 updatedProductDetails['description'] = description
         }
         if(price == "")return res.status(400).send({status:false , message: "Price field cannot be empty"})
         if (isValid(price)) {
 
-            if (!(!isNaN(Number(price)))) {
+            if (!(isNaN(Number(price)))) {
                 return res.status(400).send({ status: false, message: `Price should be a valid number` })
             }
 
@@ -333,7 +333,8 @@ const updateProduct = async function (req, res) {
         }
 
       
-        if (isValid(currencyId)) {
+        
+            if(currencyId){
 
             if (!(currencyId == "INR")) {
                 return res.status(400).send({ status: false, message: 'currencyId should be a INR' })
@@ -341,10 +342,10 @@ const updateProduct = async function (req, res) {
 
             if (!updatedProductDetails.hasOwnProperty('currencyId'))
                 updatedProductDetails['currencyId'] = currencyId;
-
         }
+        
 
-
+        if(isFreeShipping){
         if (isValid(isFreeShipping)) {
 
             if (!((isFreeShipping === "true") || (isFreeShipping === "false"))) {
@@ -354,6 +355,7 @@ const updateProduct = async function (req, res) {
             if (!updatedProductDetails.hasOwnProperty('isFreeShipping'))
                 updatedProductDetails['isFreeShipping'] = isFreeShipping
         }
+    }
 
         let productImage = req.files;
         if ((productImage && productImage.length > 0)) {

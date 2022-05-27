@@ -11,14 +11,20 @@ const isValidPhone = function (Phone) {
     return mobileRegex.test(Phone)
 }
 //validation for Value
-const isValid = function (value) {
+const isValid= function (value) {
     if (typeof value === 'undefined' || value === null) return false
-    if (typeof value !== 'string' || value.trim().length === 0) return false
-    return true;
+    if (typeof value === 'String' && value.trim().length === 0) return false
+    return true
 }
+//title validation
+const isValidScripts= function(title){
+    const scriptRegex = /^[a-zA-Z0-9 , ]{2,30}$/
+    return scriptRegex.test(title)
+}
+    
 //validation of  empty string
 const validString = function (value) {
-    if (typeof value !== 'string' && value.trim().length === 0) return false
+    if (typeof value === 'string' && value.trim().length === 0) return false
     return true;
 }
 //validation for Request Body
@@ -56,4 +62,4 @@ const validQuantity = function isInteger(value) {
 }
 
 
-module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail,isValidNumber,isValidPhone,isValidPincode,isValidPassword,validString,validInstallment,validQuantity}
+module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail, isValidScripts,isValidNumber,isValidPhone,isValidPincode,isValidPassword,validString,validInstallment,validQuantity}
