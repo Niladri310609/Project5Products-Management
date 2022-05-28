@@ -375,6 +375,7 @@ const updateProduct = async function (req, res) {
        
     
     let productImage = req.files;
+    if ((productImage && productImage.length == 0)) return res.status(400).send({status:false, message:"Please upload any file to Update"})
         if ((productImage && productImage.length > 0)) {
 
             let updatedproductImage = await uploadFile(productImage[0]);
