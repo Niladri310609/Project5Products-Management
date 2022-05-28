@@ -10,7 +10,7 @@ const currencySymbol = require("currency-symbol-map")
 const createProduct = async (req, res) => {
     try {
         const requestBody = req.body;
-
+    //========================================== validations for inputs===============================================
         if (!isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, message: 'Invalid params received in request body' })
         }
@@ -21,7 +21,7 @@ const createProduct = async (req, res) => {
 
         const { title, description, price, currencyId, isFreeShipping, style, availableSizes, installments } = requestBody;
 
-        // If title is present 
+        //========================================== validations for title ================================================ 
 
         if (title == "") {
             return res.status(400).send({ status: false, message: "Title  cannot be empty" })
@@ -34,11 +34,16 @@ const createProduct = async (req, res) => {
             return res.status(400).send({ status: false, message: 'Title is already used.' })
         }
     }
+   //========================================== validations for description ================================================  
 
-        if (!validString(description)) {
-            return res.status(400).send({ status: false, message: 'Description is required' })
-        }
+    if (description == "") {
+        return res.status(400).send({ status: false, message: "Description  cannot be empty" })
+    } else if (description) {
+        if (!validString(description)  || !isValidScripts(description))
+            return res.status(400).send({ status: false, message: "description is not in valid format"})}
 
+
+    //========================================== validations for Price ================================================ 
         if (!validString(price)) {
             return res.status(400).send({ status: false, message: 'Price is required' })
         }
@@ -49,7 +54,7 @@ const createProduct = async (req, res) => {
         if (price <= 0) {
             return res.status(400).send({ status: false, message: `Price cannot be Zero` })
         }
-
+    //========================================== validations for currencyId ================================================ 
         if (!validString(currencyId)) {
             return res.status(400).send({ status: false, message: 'CurrencyId is required' })
         }
@@ -57,26 +62,24 @@ const createProduct = async (req, res) => {
         if (!(currencyId == "INR")) {
             return res.status(400).send({ status: false, message: 'currencyId should be INR' })
         }
-
+//========================================== validations for installments ================================================ 
         if (installments) {
             if (!validInstallment(installments)) {
                 return res.status(400).send({ status: false, message: "installments can't be a decimal number & must be greater than equalto zero " })
             }
         }
 
-        if (isValid(isFreeShipping)) {
-
-            if (!((isFreeShipping === "true") || (isFreeShipping === "false"))) {
-                return res.status(400).send({ status: false, message: 'isFreeShipping must be a boolean value' })
-            }
-        }
-
+        //========================================== validations for file upload ================================================ 
         let productImage = req.files;
         if (!(productImage && productImage.length > 0)) {
             return res.status(400).send({ status: false, msg: "productImage is required" });
         }
 
         let productImageUrl = await uploadFile(productImage[0]);
+
+    
+
+    //==========================================  structuring the data ================================================ 
 
         const newProductData = {
 
@@ -92,7 +95,8 @@ const createProduct = async (req, res) => {
             productImage: productImageUrl
         }
 
-        if (!validString(availableSizes)) {
+         //================================================= validations for availableSizes=====================================
+         if (!validString(availableSizes)) {
             return res.status(400).send({ status: false, message: 'available Sizes is required' })
         }
 
@@ -110,6 +114,8 @@ const createProduct = async (req, res) => {
                 newProductData['availableSizes'] = array
             }
         }
+        
+    //======================================================= creating new product data ==============================
 
         const saveProductDetails = await productModel.create(newProductData)
         res.status(201).send({ status: true, message: "Product Successfully Created", data: saveProductDetails })
@@ -293,7 +299,7 @@ const updateProduct = async function (req, res) {
 
         const updatedProductDetails = {}  // considering a empty object
 
-
+    //=============================================== Validations for title===============================
        if (title == "") 
             return res.status(400).send({ status: false, message: "Title  cannot be empty" })
      if (title) {
@@ -307,20 +313,25 @@ const updateProduct = async function (req, res) {
          if (!updatedProductDetails.hasOwnProperty('title'))
                 updatedProductDetails['title'] = title
         }
-        
+        //=================================================validations for Description==============================================================================
+       
         if (description == "") {
             return res.status(400).send({ status: false, message: "Description  cannot be empty" })
         } else if (description) {
-            if (!isValid(title)  || !isValidScripts(title))
+            if (!isValid(description)  || !isValidScripts(description))
                 return res.status(400).send({ status: false, message: "Description is in invalid format" })
         
             if (!updatedProductDetails.hasOwnProperty('description'))
                 updatedProductDetails['description'] = description
         }
-        if(price == "")return res.status(400).send({status:false , message: "Price field cannot be empty"})
-        if (isValid(price)) {
 
-            if (!(isNaN(Number(price)))) {
+        //==============================================================================validation for Price==============================================================================
+        
+        
+        if(price == "")return res.status(400).send({status:false , message: "Price field cannot be empty"})
+        if (price){
+
+            if (!isValid(price) ||!isValidNumber(price)) {
                 return res.status(400).send({ status: false, message: `Price should be a valid number` })
             }
 
@@ -332,8 +343,8 @@ const updateProduct = async function (req, res) {
                 updatedProductDetails['price'] = price
         }
 
-      
-        
+       //============================================================================== validations for currencyId==============================================================================
+       if(currencyId == "")return res.status(400).send({status:false , message: "currencyId field cannot be empty"})
             if(currencyId){
 
             if (!(currencyId == "INR")) {
@@ -344,9 +355,11 @@ const updateProduct = async function (req, res) {
                 updatedProductDetails['currencyId'] = currencyId;
         }
         
+    //==============================================================================validations for Freeshipping==============================================================================
+    if(isFreeShipping == "")return res.status(400).send({status:false , message: "isFreeShipping field cannot be empty"})
 
-        if(isFreeShipping){
-        if (isValid(isFreeShipping)) {
+    if(isFreeShipping){
+       
 
             if (!((isFreeShipping === "true") || (isFreeShipping === "false"))) {
                 return res.status(400).send({ status: false, message: 'isFreeShipping should be a boolean value' })
@@ -354,10 +367,14 @@ const updateProduct = async function (req, res) {
 
             if (!updatedProductDetails.hasOwnProperty('isFreeShipping'))
                 updatedProductDetails['isFreeShipping'] = isFreeShipping
-        }
+        
     }
+    
 
-        let productImage = req.files;
+    //============================================================================== validaiton for Upload for file==============================================================================
+       
+    
+    let productImage = req.files;
         if ((productImage && productImage.length > 0)) {
 
             let updatedproductImage = await uploadFile(productImage[0]);
@@ -365,13 +382,17 @@ const updateProduct = async function (req, res) {
             if (!updatedProductDetails.hasOwnProperty('productImage'))
                 updatedProductDetails['productImage'] = updatedproductImage
         }
-
-        if (isValid(style)) {
-
+     //==============================================================================validations for style==============================================================================
+        if (style == "") {
+            return res.status(400).send({ status: false, message: "style cannot be empty" })
+        } else if (style) {
+            if (!isValid(style)  || !isValidScripts(style))
+                return res.status(400).send({ status: false, message: "style is in invalid format" })
+        
             if (!updatedProductDetails.hasOwnProperty('style'))
                 updatedProductDetails['style'] = style
         }
-
+        //============================================================================== validations for availableSizes==============================================================================
         if (availableSizes) {
 
             let sizesArray = availableSizes.split(",").map(x => x.trim())
@@ -386,24 +407,26 @@ const updateProduct = async function (req, res) {
             updatedProductDetails['$set']['availableSizes'] = sizesArray//{ $set: sizesArray }
         }
 
+    //============================================================================== validations for installments ==============================================================================
+    if (installments == "") {
+        return res.status(400).send({ status: false, message: "installments cannot be empty" })}
 
-        if (installments) {
+    if (installments) {
             if (!validInstallment(installments)) {
-                return res.status(400).send({ status: false, message: "installments can't be a decimal number & must be greater than equalto zero " })
+                return res.status(400).send({ status: false, message: "installments should be in numbers & can't be a decimal number & must be greater than or equal to zero " })
             }
             if (!updatedProductDetails.hasOwnProperty('installments'))
                 updatedProductDetails['installments'] = installments
         }
-            
+         //============================================================================== after all validations finally updating the data   
+
+
                 const updatedProduct = await productModel.findOneAndUpdate({ _id: productId }, updatedProductDetails, { new: true })
 
         return res.status(200).send({ status: true, message: 'Successfully updated product details.', data: updatedProduct });
     } catch (err) {
 
-        return res.status(500).send({
-            status: false,
-            message: err.message
-        })
+        return res.status(500).send({status: false,message: err.message})
     }
 }
 //=====================================================================deleteProductById===============================
@@ -413,17 +436,25 @@ const deleteProductById = async (req, res) => {
     try {
 
         let productId = req.params.productId
-
-        if (!isValidObjectId(productId)) {
+ //============================================================================== validations for ObjectId==============================================================================
+      
+ 
+               if (!isValidObjectId(productId)) {
             return res.status(404).send({ status: false, message: "Invalid Product Id" })
         }
-        let checkProduct = await productModel.findOne({ _id: productId, isDeleted: false })
+
+ //==============================================================================Checking the produc's existance in the Db==============================================================================
+        
+ 
+          let checkProduct = await productModel.findOne({ _id: productId, isDeleted: false })
 
         if (!checkProduct ) {
             return res.status(404).send({ status: false, message: "Product doesn't exits" })
         }
-
-        let deletedProduct =  await productModel.findOneAndUpdate({ _id: productId }, { $set: { isDeleted: true, deletedAt: new Date() } },{new:true})
+   //==============================================================================after checking the deletion of the product ==============================================================================
+        
+   
+       let deletedProduct =  await productModel.findOneAndUpdate({ _id: productId }, { $set: { isDeleted: true, deletedAt: new Date() } },{new:true})
 
         return res.status(200).send({ status: true, message: "Product Deleted Succesfully",data:deletedProduct})
 

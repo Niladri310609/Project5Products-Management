@@ -18,7 +18,7 @@ const isValid= function (value) {
 }
 //title validation
 const isValidScripts= function(title){
-    const scriptRegex = /^[a-zA-Z0-9 , ]{2,30}$/
+    const scriptRegex = /^[a-zA-Z0-9 , ]{2,500}$/
     return scriptRegex.test(title)
 }
     
