@@ -134,39 +134,48 @@ const createProduct = async (req, res) => {
 const getProduct = async function (req, res) {
 
     try {
-        //==============================================================  structuring the query ============================================================== 
+
         let { size, name, priceGreaterThan, priceLessThan, priceSort } = req.query
         let data = req.query
 
-        //==============================================================  Validations for the status of the Product ============================================================== 
-
         if (data.isDeleted && data.isDeleted != "false") {
-            return res.status(400).send({ status: false, data: "isDeleted must be false" })
+            return res.status(400).send({ status: false, message: "isDeleted must be false" })
         }
 
-        const value = [size, name, priceGreaterThan, priceLessThan, priceSort]   // array of key
-        const valueString = ["size", "name", "priceGreaterThan", "priceLessThan", "priceSort"]  // array of value
+        const value = [size, name, priceGreaterThan, priceLessThan, priceSort]
+        const valueString = ["size", "name", "priceGreaterThan", "priceLessThan", "priceSort"]
 
         for (let i = 0; i < value.length; i++) {
             let key = `${value[i]}`
-            if (key == '' || key == {}) {
-                return res.status(400).send({ status: false, data: `${valueString[i]} can not be empty` })
+            if (key == '') {
+                return res.status(400).send({ status: false, message: `${valueString[i]} can not be empty` })
             }
         }
 
-        const filter = {}      // considering an empty Object
+        const filter = {}
+
+        const isValidSize = (Arr) => {
+            let newArr = []
+            if (Arr.length === 0) { return false };
+            let brr = Arr[0].split(',')
+            for (let i = 0; i < brr.length; i++) {
+                if (!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(brr[i].toUpperCase())) { return false; }
+                newArr.push(brr[i].toUpperCase())
+            }
+            return newArr
+        }
+
 
         if (size) {
-            size = size.trim().toUpperCase()
-
-            const availableSizes = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-
-            const sizeFromAvailableSizes = availableSizes.includes(size) //Give true or false
-
-            if (!sizeFromAvailableSizes) {
-                return res.status(400).send({ status: false, data: `choose one the size from S,XS,M,X,L,XXL,XL ` })
+            size = [size].flat()
+            
+            if (size && !isValidSize(size)) {
+                return res.status(400).send({ status: false, message: `Size Must be of these values ---> "S", "XS","M","X", "L","XXL", "XL" ` })
+                
             }
-            filter.availableSizes = size
+           
+            size = isValidSize(size)
+            filter.availableSizes = { $in: size }
         }
 
         if (name) {
@@ -174,7 +183,7 @@ const getProduct = async function (req, res) {
 
             if (!isValid(name)) {
 
-                return res.status(400).send({ status: false, data: "name must be a valid string" })
+                return res.status(400).send({ status: false, message: "name must be a valid string" })
             }
             filter.title = { $regex: name, $options: 'i' }
         }
@@ -184,7 +193,7 @@ const getProduct = async function (req, res) {
             priceGreaterThan = priceGreaterThan.trim()
 
             if (!isValidNumber(priceGreaterThan)) {
-                return res.status(400).send({ status: false, data: "Price greater than must have valid Numbers" })
+                return res.status(400).send({ status: false, message: "Price greater than must have valid Numbers" })
             }
             filter.price = { $gt: priceGreaterThan }
         }
@@ -193,25 +202,20 @@ const getProduct = async function (req, res) {
             priceLessThan = priceLessThan.trim()
 
             if (!isValidNumber(priceLessThan)) {
-                return res.status(400).send({ status: false, data: "Price less than must have valid Numbers" })
+                return res.status(400).send({ status: false, message: "Price less than must have valid Numbers" })
             }
             filter.price = { $lt: priceLessThan }
         }
 
         if (priceGreaterThan && priceLessThan) {
 
-            priceGreaterThan = priceGreaterThan.trim()
-
-            priceLessThan = priceLessThan.trim()
-
-            let priceRange = [priceGreaterThan, priceLessThan]
-
-            for (let i = 0; i < priceRange.length; i++) {
-
-                if (!isValidNumber(priceRange[i])) {
-                    return res.status(400).send({ status: false, data: "Price range must have valid Numbers" })
-                }
+            if (priceGreaterThan == priceLessThan ) {
+                return res.status(400).send({ status: false, message: "priceGreaterThan and priceLessThan can not be the equal " })
             }
+            if ( priceGreaterThan << priceLessThan) {
+                return res.status(400).send({ status: false, message: "priceGreaterThan can not be less than priceLessThan" })
+            }
+
             filter.price = { $gt: priceGreaterThan, $lt: priceLessThan }
         }
 
@@ -220,7 +224,7 @@ const getProduct = async function (req, res) {
         if (priceSort) {
             priceSort = priceSort.trim()
             if (!(priceSort == '-1' || priceSort == '1')) {
-                return res.status(400).send({ status: false, data: `value of priceSort must be 1 or -1 ` })
+                return res.status(400).send({ status: false, message: `value of priceSort must be 1 or -1 ` })
             }
         }
         else {
