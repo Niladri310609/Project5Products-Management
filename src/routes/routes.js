@@ -6,6 +6,7 @@ const {loginUser}=require('../controllers/userController')
 const {getById} = require('../controllers/userController')
 const Mw = require('../middleware/auth')
 const {updateProduct,createProduct,getProduct,getProductById,deleteProductById} = require('../controllers/productController')
+const{cartCreation,getCart}= require('../controllers/cartController')
 
 //User's Api
 router.post("/register",createUser)
@@ -19,6 +20,10 @@ router.get("/getProductByfilter",getProduct)
 router.get("/products/:productId",getProductById)
 router.put("/products/:productId",updateProduct)
 router.delete("/products/:productId",deleteProductById)
+
+//Cart's Api
+router.post("/users/:userId/cart",Mw.userAuth,cartCreation)
+router.get("/users/:userId/cart",Mw.userAuth,getCart)
 
 
 //if api is invalid OR wrong URL
