@@ -11,10 +11,10 @@ const isValidPhone = function (Phone) {
     return mobileRegex.test(Phone)
 }
 //validation for Value
-const isValid= function (value) {
+const isValid = function (value) {
     if (typeof value === 'undefined' || value === null) return false
-    if (typeof value !== 'String' && value.trim().length === 0) return false
-    return true
+    if (typeof value !== 'string' || value.trim().length === 0 || value=="") return false
+    return true;
 }
 //title validation
 const isValidScripts= function(title){
@@ -41,15 +41,14 @@ const isValidPassword = function (password) {
     return passwordRegex.test(password)
 }
 const isValidPincode = function (pincode) {
-  
+    if (!pincode || pincode.toString().trim().length == 0 || pincode.toString().trim().length != 6 ) return false;
     if(isNaN(Number(pincode.toString().trim())))return false
-    if (!pincode || pincode.toString().trim().length == 0 || pincode.toString().trim().length != 6) return false;
     return true;
     
   }
   const isValidNumber=function(number){
-    if(isNaN(Number(number.toString().trim()))) return false
     if(!number || number.toString().trim().length==0) return false;
+    if(isNaN(Number(number.toString().trim()))) return false
     return true
 }
   const validInstallment = function isInteger(value) {

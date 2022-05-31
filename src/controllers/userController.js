@@ -2,7 +2,7 @@ const userModel = require('../models/userModel')
 const bcrypt = require('bcryptjs')
 const { uploadFile } = require('../controllers/awsUpload')
 const jwt = require('jsonwebtoken');
-const { isValid, isValidRequestBody, isValidObjectId, isValidEmail, isValidPhone, isValidPincode, isValidPassword, validString } = require('../validation/validation')
+const { isValid, isValidRequestBody, isValidObjectId, isValidEmail, isValidPhone, isValidPincode,validString } = require('../validation/validation')
 //============================================== User Creation ======================================================
 const createUser = async function (req, res) {
     try {
@@ -22,7 +22,7 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Input Data for Creating User" })
         }
 
-        if (!files) {
+        if (!files || typeof files =='string' || files=="") {
             return res.status(400).send({ status: false, message: "Profile image is required..." })
         }
         if (!isValid(fname)) {
@@ -44,6 +44,16 @@ const createUser = async function (req, res) {
 
         if (!isValid(password)) {
             return res.status(400).send({ status: false, message: "Password is required" })
+        }
+        if(!address || typeof address !='object'){
+            return res.status(400).send({ status: false, message: "Object of address is required" })
+        }
+
+        if(!address.shipping || typeof address.shipping !='object'){
+            return res.status(400).send({ status: false, message: "Object shipping address is required..." })
+        }
+        if(!address.billing || typeof address.billing !='object'){
+            return res.status(400).send({ status: false, message: "Object billing address is required..." })
         }
 
         if (!isValid(address.shipping.street)) {
@@ -72,9 +82,9 @@ const createUser = async function (req, res) {
 
         //============================================= Validations for email and password ===============================
 
-        if (!isValidPhone(phone)) {
-            return res.status(400).send({ status: false, message: "please enter a valid Phone no" });
-        }
+        // if (!isValidPhone(phone)) {
+        //     return res.status(400).send({ status: false, message: "please enter a valid Phone no" });
+        // }
 
         const isRegisteredphone = await userModel.findOne({ phone }).lean();
 
@@ -91,7 +101,7 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "email id already registered" });
         }
 
-        if (password.toString().trim().length < 8) {
+        if (password=="" || password.toString().trim().length < 8) {
             return res.status(400).send({ status: false, message: "Your password must be at least 8 characters" })
         }
 
