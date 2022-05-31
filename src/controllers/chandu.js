@@ -2,9 +2,6 @@ const mongoose = require('mongoose')
 const aws = require('../controllers/awsUpload')
 const productModel = require('../models/productModel')
 const validator = require('../validation/validation')
-
-
-
 const produtCreate = async (req, res) => {
     try{
 
