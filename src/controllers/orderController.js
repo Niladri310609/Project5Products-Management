@@ -1,19 +1,23 @@
 const userModel = require("../models/userModel");
 const cartModel = require("../models/cartModel");
 const orderModel = require("../models/orderModel");
+const {isValidRequestBody, isValidObjectId,isValidStatus} = require('../validation/validation')
+
+
 
 const orderCreation = async (req,res)=>{
     try {
-        const userId = req.params.userId;
-        const requestBody = req.body;
+        let userId = req.params.userId;
+        let requestBody = req.body;
+        let userIdFromToken = req.userId
 
-        if (!validator.isValidRequestBody(requestBody)) {
+        if (!isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, message: "Invalid request body. Please provide the the input to proceed." });
         }
         //Extract parameters
         const { cartId, cancellable, status } = requestBody;
 
-        if (!validator.isValidObjectId(userId)) {
+        if (!isValidObjectId(userId)) {
             return res
                 .status(400)
                 .send({ status: false, message: "Invalid userId in params." });
@@ -21,19 +25,23 @@ const orderCreation = async (req,res)=>{
 
         const searchUser = await userModel.findOne({ _id: userId });
         if (!searchUser) {
-            return res.status(400).send({ status: false, message: `user doesn't exists for ${userId}` });
+            return res.status(404).send({ status: false, message: `user doesn't exist for ${userId}` });
+        }
+        if (searchUser._id.toString() != userIdFromToken) {
+            return res.status(403).send({ status: false, message: `Unauthorized access! User's info doesn't match` });
+
         }
 
         if (!cartId) {
-            return res.status(400).send({ status: false, message: `Cart doesn't exists for ${userId}` });
+            return res.status(400).send({ status: false, message: `Cart Id is required` });
         }
-        if (!validator.isValidObjectId(cartId)) {
+        if (!isValidObjectId(cartId)) {
             return res.status(400).send({ status: false, message: `Invalid cartId in request body.` });
         }
         const searchCartDetails = await cartModel.findOne({ _id: cartId, userId: userId });
 
         if (!searchCartDetails) {
-            return res.status(400).send({ status: false, message: `Cart doesn't belongs to ${userId}` });
+            return res.status(404).send({ status: false, message: `Cart doesn't belongs to ${userId}` });
         }
 
         if (cancellable) {
@@ -43,16 +51,16 @@ const orderCreation = async (req,res)=>{
         }
 
         if (status) {
-            if (!validator.isValidStatus(status)) {
+            if (!isValidStatus(status)) {
                 return res.status(400).send({ status: false, message: `Status must be among ['pending','completed','cancelled'].` });
             }
         }
         if (!searchCartDetails.items.length) {
-            return res.status(202).send({ status: false, message: `Order already placed for this cart. Please add some products in cart to make an order.` });
+            return res.status(200).send({ status: false, message: `Order already placed for this cart. Please add some products in cart to make an order.`});
         }
         //adding quantity of every products
-        const reducer = (previousValue, currentValue) => previousValue + currentValue;
-        let totalQuantity = searchCartDetails.items.map((x) => x.quantity).reduce(reducer);
+        /*const reducer = (previousValue, currentValue) => previousValue + currentValue;
+        let totalQuantity = searchCartDetails.items.map((x) => x.quantity).reduce(reducer);*/
 
         const orderDetails = {
             userId: userId,

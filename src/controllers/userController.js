@@ -119,7 +119,7 @@ const createUser = async function (req, res) {
 const loginUser = async (req, res) => {
 
     try {
-        const requestBody = req.body;
+        let requestBody = req.body;
 
         // structuring Body
 
@@ -148,7 +148,7 @@ const loginUser = async (req, res) => {
         if (!(password.length >= 8 && password.length <= 15)) {
             return res.status(400).send({ status: false, message: "Password should be Valid min 8 and max 15 " })
         }
-        // ===============================================Authentication checking && setting Token=============================
+        // ===============================================Encrypting the password && create Token=============================
 
         const user = await userModel.findOne({ email });
         if (!user) {
@@ -168,7 +168,7 @@ const loginUser = async (req, res) => {
         }, 'Hercules')
 
 
-        //res.header("Authorization", "Bearer");
+      
 
         res.status(200).send({ status: true, messsge: "User Login Successful", data: { userId: user._id, token: token } });
     } catch (error) {
@@ -189,7 +189,7 @@ let getById = async (req, res) => {
 
         if (!user) return res.status(400).send({ status: false, messgage: ' user does not exists' })
 
-        return res.status(200).send({ status: false, message: 'User pfofile details', data: user })
+        return res.status(200).send({ status: true, message: 'User pfofile details', data: user })
     }
     catch (error) {
         return res.status(500).send({ status: false, error: error.message })

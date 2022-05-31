@@ -13,7 +13,7 @@ const isValidPhone = function (Phone) {
 //validation for Value
 const isValid= function (value) {
     if (typeof value === 'undefined' || value === null) return false
-    if (typeof value === 'String' && value.trim().length === 0) return false
+    if (typeof value !== 'String' && value.trim().length === 0) return false
     return true
 }
 //title validation
@@ -60,6 +60,9 @@ const validQuantity = function isInteger(value) {
     if(value < 1) return false
      if(value % 1 == 0 ) return true
 }
+const isValidStatus = function(status) {
+    return ['pending', 'completed', 'cancelled'].indexOf(status) !== -1
+}
 
 
-module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail, isValidScripts,isValidNumber,isValidPhone,isValidPincode,isValidPassword,validString,validInstallment,validQuantity}
+module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail,isValidStatus, isValidScripts,isValidNumber,isValidPhone,isValidPincode,isValidPassword,validString,validInstallment,validQuantity}

@@ -6,6 +6,7 @@ const validator = require('../validation/validation')
 
 
 const produtCreate = async (req, res) => {
+    try{
 
     let prouductImage = req.files
 
@@ -15,8 +16,9 @@ const produtCreate = async (req, res) => {
     //------------------------------------------------
     let datas = JSON.parse(data.data)
 
-    let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = datas
-    console.log(availableSizes)
+
+    let { title, description, price, currencyId, currencyFormat, isFreeShipping, style,  installments } = datas
+    // console.log(typeof(availableSizes))
 
     //-----------mandidatory arrys--------------    
     let arr1 = ["title", "description", "price", "currencyId", "currencyFormat"]
@@ -33,25 +35,27 @@ const produtCreate = async (req, res) => {
 
     //other than inr validation
     //enum validation
-  if (availableSizes) {
-            let array = availableSizes.split(",").map(x => x.trim())
-
-           for (let i = 0; i < array.length; i++) {
-                if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].includes(array[i]))) {
-                    return res.status(400).send({ status: false, message: `Available Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
-                }
+   
+    const splitingString = (Arr) => {
+                   
+             console.log(Arr)
+            let brr = Arr.split(',')
             
-            }
-
-            if (Array.isArray(array)) {
-                newProductData['availableSizes'] = array
+            return brr
+        }
+      
+        let availableSizes=splitingString(datas.availableSizes)
+      
+    if (datas.availableSizes) {
+           for (let i = 0; i < availableSizes.length; i++) {
+               
+                let arrEle=availableSizes[i]
+                
+                if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].includes(arrEle))) return res.status(400).send({ status: false, message: `Available Sizes must be among ["S", "XS", "M", "X", "L", "XXL", "XL"]` })
+                         
             }
         }
-
-    const isValidCurrn = function (title) {
-        return ["INR"].indexOf(title) !== -1;
-    };
-
+    const isValidCurrn =  (title)=> ["INR"].indexOf(title) !== -1;
     //--------undefined function-----------
     castings = () => undefined
     
@@ -65,7 +69,16 @@ const produtCreate = async (req, res) => {
         if (!validator.isValid(key)) return res.status(400).send({ status: false, message: `please enter the ${arr1[i]}` })
     }
     //---------------------------------------
-   
+    if(!validator.isValidNumber(price))  return res.status(400).send({ status: false, message: `the price must be number` })
+    
+    if(!validator.isValidNumber(installments))  return res.status(400).send({ status: false, message: `the  instalment must be number` })
+    
+    if(installments<0)   return res.status(400).send({ status: false, message: `the installment can't be less than zero` })
+    
+    if(price<0)   return res.status(400).send({ status: false, message: `the price can't be less than zero` })
+    
+    if(!(typeof(isFreeShipping)==="boolean")) return res.status(400).send({ status: false, message: `isFreeShipping property must be true or false` })
+    
     if (!isValidCurrn(currencyId)) return res.status(400).send({ status: false, message: `the currencyId should be INR` })
     
     if (currencyFormat != '₹') return res.status(400).send({ statu: false, message: `cunnrenty fomat is invalid ` })
@@ -74,15 +87,10 @@ const produtCreate = async (req, res) => {
     for (let i = 0; i < uniqueArrayValue.length; i++) {
        
         let key = uniqueArrayValue[i]
-        // uniqueArrayValue[i][key]=key
-      
+        
         uniqueArrayKeyPair[i].title = key
       
-        console.log(uniqueArrayKeyPair[i])
-      
         let valueExsits = await productModel.findOne(uniqueArrayKeyPair[i])
-      
-        console.log((valueExsits))
       
         if (valueExsits) return res.status(400).send({ status: false, message: `This ${uniqueKey[i]} already registerd in the data base` })
     }
@@ -91,70 +99,105 @@ const produtCreate = async (req, res) => {
   
     let imageLink = await aws.uploadFile(prouductImage[0])
   
-    let finalData = { ...datas, productImage: imageLink }
+    let finalData = { ...datas,availableSizes:splitingString(datas.availableSizes), productImage: imageLink }
   
     let product = await productModel.create(finalData)
-  
+    
     res.status(200).send(product)
 }
+catch(e){
+res.status(500).send({ status: false, message: e.message })
+}
+}
+
 const createCart = async (req, res) => {
     try {
-        const data = req.body
-        const userId = req.params.userId
-        const { items, cartId } = data
-
-        if (!isValidRequestBody(data)) return res.status(400).send({ status: false, message: `please provide body data` })
-        const valueArray = [items[0].productId, userId]
-        const keyArray = ["ProductId", 'userId']
-
-        for (let i = 0; i < keyArray.length; i++) {
-            let prop = valueArray[i]
-            if (!isValid(prop)) return res.status(400).send({ status: false, message: `please enter ${keyArray[i]} data` })
-        }
+        const data = req.body   
         
-    if (!isValidObjectId(items[0].productId)) return res.status(400).send({ status: false, message: `please enter  the valid product Id` })
+        let userId = req.params.userId
+        
+        userId=userId.toString().trim()
 
-        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: `please enter the valid user Id` })
+        let  {productId, cartId } = data
+        
+        productId=productId.toString().trim()
+        
+    
+        if (!(validator.isValidRequestBody(data))) return res.status(400).send({ status: false, message: `please provid body data` })
 
-        if (!isValidNumber(items[0].quantity)) return res.status(400).send({ status: false, message: `please enter the valid quantity data` })
+       
 
-        if ((items[0].quantity < 1)) return res.status(400).send({ status: false, message: `quantity must be atleast one` })
+        if (!validator.isValid(productId)) return res.status(400).send({ status: false, message: `please enter the product ID` })
+         if(cartId) {
+        
+         cartId=cartId.toString().trim()
+        
+         if (!validator.isValid(cartId)) return res.status(400).send({ status: false, message: `please enter the cart ID` })
+        
+         if(!validator.isValidObjectId(cartId)) return res.status(400).send({ status: false, message: `Cart ID is not valid ` })
+         }
+
+        if (!validator.isValidObjectId(productId)) return res.status(400).send({ status: false, message: `please enter please enter the valid product Id` })
+
+        if (!validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: `please enter please enter the valid user Id` })
 
         let userExsists = await userModel.findById(userId)
-        
+
         if (!userExsists) return res.status(400).send({ status: false, message: ` user don't exsist in data base` })
-
-        let productExsists = await productModel.find({ _id: items[0].productId, isDeleted: false })
-
+        
+        let productExsists = await productModel.find({ _id: productId, isDeleted: false })
+        
         if ((productExsists.length == 0)) return res.status(400).send({ status: false, message: ` product  don't exsist in data base` })
 
         let prices = productExsists[0].price
-
-        let cartExists = await cartModel.findOne({ userId: userId })
-
+    
+        let cartExists = await cartModel.findOne({ userId: userId})
+        
+    
         if (cartExists) {
 
-               if (!cartId) return res.status(400).send({ status: false, message: ` cart Id is has been genrated already please enter the cart Id` })
+             let cartExists1 = await cartModel.findOne({ userId: userId,_id:cartId})
 
-            else {
-                let addingPrduct = await cartModel.findByIdAndUpdate(cartId, { $push: { items: data.items } }, { new: true })
+            if(!cartExists1) return res.status(400).send({ status: false, message: ` cart ID cart is not mathced with this user ID` })
+    
+            if (!cartId) return res.status(400).send({ status: false, message: ` cart Id is has been genrated already please enter the cart Id` })
+    
+            if(cartId) 
+            {
+
+                const ifSameProduct = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1,totalPrice: prices } }, { new: true })
+
+                console.log(ifSameProduct)
                 
-                let increamen = await cartModel.findByIdAndUpdate(cartId, { $inc: { totalPrice: prices, totalItems: 1 } }, { new: true })
+                if(ifSameProduct) return res.status(200).send({status:false,message:'product added',Data:ifSameProduct})
 
-                if (!increamen) return res.status(200).send({ status: true, message: `this cart id is invalid` })
+                let newItems={
+                    productId:productId,
+                    quantity:1
+                }
 
-                return res.status(200).send({ status: true, message: `product is added to the cart`, data: increamen })
+                let addingPrduct = await cartModel.findOneAndUpdate({_id:cartId,userId:userId},
+                    {
+                     $push: { items: newItems},
+                      $inc: { totalPrice: prices, totalItems: 1  }
+                     }  
+              , { new: true})
+
+                return res.status(200).send({ status: true, message: `product is added to the cart`, data: addingPrduct })
             }
         }
-        let addingCartId = await cartModel.create({ items: data.items, userId: userId, totalPrice: prices, totalItems: 1 })
+         let newItems1={
+                    productId:productId,
+                    quantity:1
+                }
+
+        let addingCartId = await cartModel.create({ items:newItems1, userId: userId, totalPrice: prices, totalItems: 1 })
 
         res.status(200).send({ status: true, message: `product is added to the cart`, data: { addingCartId } })
-
     }
-
-    catch (error) {
-        res.status(500).send({ satus: false, error: error.message })
+    catch (e) {
+        res.status(500).send({ satus: false, error: e.message })
     }
-
 }
+
 module.exports = { produtCreate,createCart}

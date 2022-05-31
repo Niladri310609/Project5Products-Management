@@ -72,7 +72,7 @@ const createProduct = async (req, res) => {
         //========================================== validations for file upload ================================================ 
         let productImage = req.files;
         if (!(productImage && productImage.length > 0)) {
-            return res.status(400).send({ status: false, msg: "productImage is required" });
+            return res.status(400).send({ status: false, msg: "product image is required" });
         }
 
         let productImageUrl = await uploadFile(productImage[0]);
@@ -122,7 +122,7 @@ const createProduct = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        res.status(500).send({ status: false, data: error });
+        res.status(500).send({ status: false, error: error.message });
     }
 }
 //======================================================= get Product by Filter ==============================
@@ -179,7 +179,7 @@ const getProduct = async function (req, res) {
         }
 
         if (name) {
-            name = name.trim()
+            name = name.toString().trim()
 
             if (!isValid(name)) {
 
@@ -190,7 +190,7 @@ const getProduct = async function (req, res) {
 
         if (priceGreaterThan) {
 
-            priceGreaterThan = priceGreaterThan.trim()
+            priceGreaterThan = priceGreaterThan.toString().trim()
 
             if (!isValidNumber(priceGreaterThan)) {
                 return res.status(400).send({ status: false, message: "Price greater than must have valid Numbers" })
@@ -199,7 +199,7 @@ const getProduct = async function (req, res) {
         }
 
         if (priceLessThan) {
-            priceLessThan = priceLessThan.trim()
+            priceLessThan = priceLessThan.toString().trim()
 
             if (!isValidNumber(priceLessThan)) {
                 return res.status(400).send({ status: false, message: "Price less than must have valid Numbers" })
@@ -222,7 +222,7 @@ const getProduct = async function (req, res) {
         filter.isDeleted = false;
 
         if (priceSort) {
-            priceSort = priceSort.trim()
+            priceSort = priceSort.toString().trim()
             if (!(priceSort == '-1' || priceSort == '1')) {
                 return res.status(400).send({ status: false, message: `value of priceSort must be 1 or -1 ` })
             }
@@ -385,7 +385,7 @@ const updateProduct = async function (req, res) {
         
         if (productImage) {
             let productImage = req.files;
-            console.log("hi")
+            
             if ((productImage || productImage.length == 0)) return res.status(400).send({ status: false, message: "Please upload any file to Update" })
             if ((productImage && productImage.length > 0)) {
 
@@ -474,7 +474,7 @@ const deleteProductById = async (req, res) => {
 
         let deletedProduct = await productModel.findOneAndUpdate({ _id: productId }, { $set: { isDeleted: true, deletedAt: new Date() } }, { new: true })
 
-        return res.status(200).send({ status: true, message: "Product Deleted Succesfully", data: deletedProduct })
+        return res.status(200).send({ status: true, message: "Product Deleted Succesfully", })
 
     } catch (error) {
         res.status(500).send({ status: false, message: error.message });
