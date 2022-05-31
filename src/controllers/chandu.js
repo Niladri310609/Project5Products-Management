@@ -158,3 +158,99 @@ const createCart = async (req, res) => {
 
 }
 module.exports = { produtCreate,createCart}
+//------3rd feature------------------------------------------------------------------------
+const mongoose = require('mongoose')
+const productModel = require('../models/productModel')
+const userModel = require('../models/userModel')
+const validator = require('../validation/validation')
+const cartModel = require('../models/cartModel')
+const createCart = async (req, res) => {
+    try {
+        const data = req.body   
+        
+        let userId = req.params.userId
+        
+        userId=userId.toString().trim()
+
+        let  {productId, cartId } = data
+        
+        productId=productId.toString().trim()
+        
+    
+        if (!(validator.isValidRequestBody(data))) return res.status(400).send({ status: false, message: `please provid body data` })
+
+       
+
+        if (!validator.isValid(productId)) return res.status(400).send({ status: false, message: `please enter the product ID` })
+         if(cartId) {
+        
+         cartId=cartId.toString().trim()
+        
+         if (!validator.isValid(cartId)) return res.status(400).send({ status: false, message: `please enter the cart ID` })
+        
+         if(!validator.isValidObjectId(cartId)) return res.status(400).send({ status: false, message: `Cart ID is not valid ` })
+         }
+
+        if (!validator.isValidObjectId(productId)) return res.status(400).send({ status: false, message: `please enter please enter the valid product Id` })
+
+        if (!validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: `please enter please enter the valid user Id` })
+
+        let userExsists = await userModel.findById(userId)
+
+        if (!userExsists) return res.status(400).send({ status: false, message: ` user don't exsist in data base` })
+        
+        let productExsists = await productModel.find({ _id: productId, isDeleted: false })
+        
+        if ((productExsists.length == 0)) return res.status(400).send({ status: false, message: ` product  don't exsist in data base` })
+
+        let prices = productExsists[0].price
+    
+        let cartExists = await cartModel.findOne({ userId: userId})
+        
+    
+        if (cartExists) {
+
+             let cartExists1 = await cartModel.findOne({ userId: userId,_id:cartId})
+
+            if(!cartExists1) return res.status(400).send({ status: false, message: ` cart ID cart is not mathced with this user ID` })
+    
+            if (!cartId) return res.status(400).send({ status: false, message: ` cart Id is has been genrated already please enter the cart Id` })
+    
+            if(cartId) 
+            {
+
+                const ifSameProduct = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1,totalPrice: prices } }, { new: true })
+
+                console.log(ifSameProduct)
+                
+                if(ifSameProduct) return res.status(200).send({status:false,message:'product added',Data:ifSameProduct})
+
+                let newItems={
+                    productId:productId,
+                    quantity:1
+                }
+
+                let addingPrduct = await cartModel.findOneAndUpdate({_id:cartId,userId:userId},
+                    {
+                     $push: { items: newItems},
+                      $inc: { totalPrice: prices, totalItems: 1  }
+                     }  
+              , { new: true})
+
+                return res.status(200).send({ status: true, message: `product is added to the cart`, data: addingPrduct })
+            }
+        }
+         let newItems1={
+                    productId:productId,
+                    quantity:1
+                }
+
+        let addingCartId = await cartModel.create({ items:newItems1, userId: userId, totalPrice: prices, totalItems: 1 })
+
+        res.status(200).send({ status: true, message: `product is added to the cart`, data: { addingCartId } })
+    }
+    catch (e) {
+        res.status(500).send({ satus: false, error: e.message })
+    }
+}
+module.exports = { createCart }
