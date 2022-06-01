@@ -1,18 +1,15 @@
 const express = require('express')
 const router = express.Router()
-const{createUser} =require('../controllers/userController')
-const {updateUser}=require('../controllers/userController')
-const {loginUser}=require('../controllers/userController')
-const {getById} = require('../controllers/userController')
-const Mw = require('../middleware/auth')
+const{createUser,loginUser,updateUser,getById} =require('../controllers/userController')
+const { authentication,authorization} = require('../middleware/auth')
 const {updateProduct,createProduct,getProduct,getProductById,deleteProductById} = require('../controllers/productController')
 const{cartCreation,getCart,updateCart,deleteCart}= require('../controllers/cartController')
-const{orderCreation} = require("../controllers/orderController")
+const{orderCreation,updateOrder} = require("../controllers/orderController")
 //User's Api
 router.post("/register",createUser)
 router.post("/userLogin",loginUser)
-router.get("/getuser/:userId",Mw.userAuth,getById)
-router.put("/updateUser/:userId", Mw.userAuth,updateUser)
+router.get("/getuser/:userId",authentication,getById)
+router.put("/updateUser/:userId",authentication,authorization,updateUser)
 
 //product's Api
 router.post("/createProduct",createProduct)
@@ -22,14 +19,15 @@ router.put("/products/:productId",updateProduct)
 router.delete("/products/:productId",deleteProductById)
 
 //Cart's Api
-router.post("/users/:userId/cart",Mw.userAuth,cartCreation)
-router.get("/users/:userId/cart",Mw.userAuth,getCart)
-router.put("/users/:userId/cart",Mw.userAuth,updateCart)
-router.delete("/users/:userId/cart",Mw.userAuth,deleteCart)
+router.post("/users/:userId/cart",authentication,authorization,cartCreation)
+router.get("/users/:userId/cart",authentication,getCart)
+router.put("/users/:userId/cart",authentication,authorization,updateCart)
+router.delete("/users/:userId/cart",authentication,authorization,deleteCart)
 
 
 //Order's Api
-router.post("/users/:userId/orders",Mw.userAuth,orderCreation)
+router.post("/users/:userId/orders",authentication,authorization,orderCreation)
+router.put("/users/:userId/orders",authentication,authorization,updateOrder)
 
 
 

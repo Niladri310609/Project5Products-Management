@@ -18,18 +18,18 @@ const isValid = function (value) {
 }
 //title validation
 const isValidScripts= function(title){
-    const scriptRegex = /^[a-zA-Z0-9 , ]{2,500}$/
+    const scriptRegex = /^(?![0-9]*$)[A-Za-z0-9\s\-_,\.;:()]+$/
     return scriptRegex.test(title)
 }
-    
+
 //validation of  empty string
 const validString = function (value) {
     if (typeof value === 'string' && value.trim().length === 0) return false
     return true;
 }
 //validation for Request Body
-const isValidRequestBody = function (requestBody) {
-    return Object.keys(requestBody).length > 0
+const isValidRequestBody = function (request) {
+    return (Object.keys(request).length > 0)
 }
 //validation for ObjectId
 const isValidObjectId = function (objectId) {
@@ -60,7 +60,11 @@ const validQuantity = function isInteger(value) {
      if(value % 1 == 0 ) return true
 }
 const isValidStatus = function(status) {
-    return ['pending', 'completed', 'cancelled'].indexOf(status) !== -1
+    if( ['pending', 'completed', 'cancelled'].indexOf(status) == -1)
+{
+return false
+}
+return true
 }
 
 

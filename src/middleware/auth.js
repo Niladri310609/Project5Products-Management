@@ -1,36 +1,50 @@
 const jwt = require('jsonwebtoken')
 
 
-
-const userAuth = async (req, res, next) => {
+const authentication = async (req, res, next) => {
     try {
-        const token = req.header('Authorization', 'Bearer Token')|| req.header('authorization' , 'Bearer Token')
-
+        const token = req.header('Authorization', 'Bearer Token') || req.header('authorization', 'Bearer Token')
 
         if (!token) {
-            return res.status(403).send({ status: false, message: `Missing authentication token in request` })
+            return res.status(401).send({ status: false, message: `Missing authentication token in request` })
         }
 
         let T = token.split(' ')
         //console.log(T)
         let timeOut = jwt.decode(T[1], 'Hercules')
+        console.log(T[0], T[1])
 
-
-        if (!timeOut) {
-            return res.status(403).send({ status: false, message: `Invalid authentication token in request ` })
-        }
+        
 
         if (Date.now() > (timeOut.exp) * 1000) {
-            return res.status(404).send({ status: false, message: `Session Expired, please login again` })
+            return res.status(401).send({ status: false, message: `Session Expired, please login again` })
         }
 
         req.userId = timeOut.userId
 
         next()
     } catch (error) {
-        console.error(`Error! ${error.message}`)
-        res.status(500).send({ status: false, message: error.message })
+
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
 
-module.exports = { userAuth}
+const authorization = (req, res, next) => {
+
+    try {
+
+        let tokenUserId = req.userId
+        let userId = req.params.userId
+        
+//console.log(userId)
+
+        if (tokenUserId.toString() !== userId) {
+            return res.status(403).send({ status: false, message: "unathorized access" })
+        }
+        next()
+
+    } catch (error) {
+        res.status(500).send({ status: false, message: error.message });
+    }
+}
+    module.exports = { authentication,authorization}

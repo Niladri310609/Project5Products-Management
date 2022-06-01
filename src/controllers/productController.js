@@ -62,6 +62,9 @@ const createProduct = async (req, res) => {
         if (!(currencyId == "INR")) {
             return res.status(400).send({ status: false, message: 'currencyId should be INR' })
         }
+        if(!(currencyformat == "₹")){
+            return res.status(400).send({status:false , message: "currencyformat should be Ruppee"})
+        }
         //========================================== validations for installments ================================================ 
         if (installments) {
             if (!validInstallment(installments)) {

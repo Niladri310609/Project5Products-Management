@@ -212,39 +212,35 @@ let getById = async (req, res) => {
 const updateUser = async (req, res) => {
 
     try {
-        let files = req.files
+       
         let requestBody = req.body
-        let { fname, lname, phone, email, password, address} = requestBody //destructing body
+        let { fname, lname, phone, email, password, address, profileImage} = requestBody //destructing body
         let userId = req.params.userId
         let userIdFromToken = req.userId;  
         
        // ============================= validation for inputs =============================
         
-        if ((!files) && Object.keys(requestBody).length == 0) {
+        if (!isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, message: "Input field cannot be empty" })
         }
-        if((files)){
-            if(Object.values(files).length == 0){
-                return res.status(400).send({status:false , message: "please Upload files for updations"})
-            }
-        }
-        if (files.length>0) {         
-            if (!files || typeof files == 'string' || files == "") {
-                return res.status(400).send({ status: false, message: "Profile image is required..." })
-            }
-            var updatedProfileImage = await uploadFile(files[0])
-        }
-   
+       if(profileImage){
+           let files = req.files
+        if(files && files.length>0){
             
-        
-
-        if (!isValidObjectId(userId)) {
+            var updatedProfileImage= await uploadFile( files[0] )
+        }
+        else{
+           return res.status(400).send({ msg: "No file found" })
+        }
+    }
+   
+       if (!isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: `${userId} is not a valid user id` })
 
         }
-        if (!isValidObjectId(userIdFromToken)) {
+       /* if (!isValidObjectId(userIdFromToken)) {
             return res.status(400).send({ status: false, message: `Token is not Valid` })
-        }
+        }*/
 
         //============================== checking User Id and Authorization=============================
 
@@ -255,10 +251,10 @@ const updateUser = async (req, res) => {
                 message: `User doesn't exists by ${userId}`
             })
         }
-        if (findUserProfile._id.toString() != userIdFromToken) {
+        /*if (findUserProfile._id.toString() != userIdFromToken) {
             return res.status(403).send({ status: false, message: `Unauthorized access! User's info doesn't match` });
 
-        }
+        }*/
 
         //====================================================validation for fname
         if (fname == "") {
