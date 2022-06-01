@@ -25,6 +25,7 @@ const createUser = async function (req, res) {
         if (!files || typeof files =='string' || files=="") {
             return res.status(400).send({ status: false, message: "Profile image is required..." })
         }
+        
         if (!isValid(fname)) {
             return res.status(400).send({ status: false, message: "fname is required..." })
         }
@@ -211,17 +212,31 @@ let getById = async (req, res) => {
 const updateUser = async (req, res) => {
 
     try {
-        let files = req.files   
+        let files = req.files
         let requestBody = req.body
+        let { fname, lname, phone, email, password, address} = requestBody //destructing body
         let userId = req.params.userId
-        let userIdFromToken = req.userId
-        let { fname, lname, email, phone, password, address,profileImage } = requestBody;  //destructing body
-
+        let userIdFromToken = req.userId;  
+        
        // ============================= validation for inputs =============================
-
-         if(!isValidRequestBody(requestBody && files)){
-             return res.status(400).send({status:false, message:"Input field cannot be empty"})
-         }
+        
+        if ((!files) && Object.keys(requestBody).length == 0) {
+            return res.status(400).send({ status: false, message: "Input field cannot be empty" })
+        }
+        if((files)){
+            if(Object.values(files).length == 0){
+                return res.status(400).send({status:false , message: "please Upload files for updations"})
+            }
+        }
+        if (files.length>0) {         
+            if (!files || typeof files == 'string' || files == "") {
+                return res.status(400).send({ status: false, message: "Profile image is required..." })
+            }
+            var updatedProfileImage = await uploadFile(files[0])
+        }
+   
+            
+        
 
         if (!isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: `${userId} is not a valid user id` })
@@ -268,7 +283,7 @@ const updateUser = async (req, res) => {
             return res.status(400).send({ status: false, message: 'lname is Required' })
         }
         if (lname) {
-            if (!isValid(fname)) {
+            if (!isValid(lname)) {
                 return res.status(400).send({ status: false, message: "Invalid request parameter, please provide lname" })
             }
         }
@@ -378,15 +393,7 @@ const updateUser = async (req, res) => {
                 return res.status(400).send({ status: false, message: " Invalid request parameters. Billing address cannot be empty" });
             }
         }
-        if (files) {
-            if (isValidRequestBody(files)) {
-                if (!(files && files.length > 0)) {
-                    return res.status(400).send({ status: false, message: "Invalid request parameter, please provide profile image" })
-                }
-                var updatedProfileImage = await uploadFile(files[0])
-            }
-        }
-
+        
 
         let changeProfileDetails = await userModel.findOneAndUpdate({ _id: userId }, {
             $set: {

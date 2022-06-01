@@ -1,21 +1,33 @@
 const userModel = require("../models/userModel");
 const cartModel = require("../models/cartModel");
 const orderModel = require("../models/orderModel");
-const {isValidRequestBody, isValidObjectId,isValidStatus} = require('../validation/validation')
+const { isValidRequestBody, isValidObjectId, isValidStatus } = require('../validation/validation')
 
 
 
-const orderCreation = async (req,res)=>{
+const orderCreation = async (req, res) => {
     try {
         let userId = req.params.userId;
         let requestBody = req.body;
         let userIdFromToken = req.userId
+        let { cartId, cancellable, status } = requestBody;
 
         if (!isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, message: "Invalid request body. Please provide the the input to proceed." });
         }
-        //Extract parameters
-        const { cartId, cancellable, status } = requestBody;
+        if (cancellable) {
+            if (typeof cancellable != "boolean") {
+                return res.status(400).send({ status: false, message: `Cancellable must be either 'true' or 'false'.` });
+            }
+        }
+
+        if (status) {
+            if (status !== 'pending') {
+                return res.status(400).send({ status: false, message: "status must be Pending during creation of order" })
+            }
+        }
+        
+      
 
         if (!isValidObjectId(userId)) {
             return res
@@ -37,6 +49,7 @@ const orderCreation = async (req,res)=>{
         }
         if (!isValidObjectId(cartId)) {
             return res.status(400).send({ status: false, message: `Invalid cartId in request body.` });
+
         }
         const searchCartDetails = await cartModel.findOne({ _id: cartId, userId: userId });
 
@@ -44,23 +57,14 @@ const orderCreation = async (req,res)=>{
             return res.status(404).send({ status: false, message: `Cart doesn't belongs to ${userId}` });
         }
 
-        if (cancellable) {
-            if (typeof cancellable != "boolean") {
-                return res.status(400).send({ status: false, message: `Cancellable must be either 'true' or 'false'.` });
-            }
-        }
+       
 
-        if (status) {
-            if (!isValidStatus(status)) {
-                return res.status(400).send({ status: false, message: `Status must be among ['pending','completed','cancelled'].` });
-            }
-        }
         if (!searchCartDetails.items.length) {
-            return res.status(200).send({ status: false, message: `Order already placed for this cart. Please add some products in cart to make an order.`});
+            return res.status(204).send({ status: false, message: `Please add some products in cart to make an order.` });
         }
         //adding quantity of every products
-        /*const reducer = (previousValue, currentValue) => previousValue + currentValue;
-        let totalQuantity = searchCartDetails.items.map((x) => x.quantity).reduce(reducer);*/
+        const reducer = (previousValue, currentValue) => previousValue + currentValue;
+        let totalQuantity = searchCartDetails.items.map((x) => x.quantity).reduce(reducer);
 
         const orderDetails = {
             userId: userId,
@@ -86,4 +90,4 @@ const orderCreation = async (req,res)=>{
         return res.status(500).send({ status: false, message: err.message });
     }
 };
-module.exports={orderCreation}
+module.exports = { orderCreation }
