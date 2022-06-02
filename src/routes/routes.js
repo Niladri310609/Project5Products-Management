@@ -12,28 +12,28 @@ const{orderCreation,updateOrder} = require("../controllers/orderController")
 
 
 //User's Api
-router.post("/register",createUser)
-router.post("/login",loginUser)
-router.get("/user/:userId/profile",authentication,getById)
-router.put("/user/:userId/profile",authentication,authorization,updateUser)
+router.post("/register",createUser) // Arup
+router.post("/login",loginUser) // Nil
+router.get("/user/:userId/profile",authentication,getById) // CHANDU
+router.put("/user/:userId/profile",authentication,authorization,updateUser) //Mubashir
 
 //product's Api
-router.post("/products",createProduct)
-router.get(" /products",getProduct)
-router.get("/products/:productId",getProductById)
-router.put("/products/:productId",updateProduct)
-router.delete("/products/:productId",deleteProductById)
+router.post("/products",createProduct) // Arup
+router.get(" /products",getProduct) // Nil
+router.get("/products/:productId",getProductById) // Mubashir
+router.put("/products/:productId",updateProduct) //Chandu
+router.delete("/products/:productId",deleteProductById) //Mubashir
 
 //Cart's Api
-router.post("/users/:userId/cart",authentication,authorization,cartCreation)
-router.get("/users/:userId/cart",authentication,getCart)
-router.put("/users/:userId/cart",authentication,authorization,updateCart)
-router.delete("/users/:userId/cart"/*authentication,authorization*/,deleteCart)
+router.post("/users/:userId/cart",authentication,authorization,cartCreation) //Nil
+router.get("/users/:userId/cart",authentication,getCart) // Arup
+router.put("/users/:userId/cart",authentication,authorization,updateCart) //Chandu
+router.delete("/users/:userId/cart",authentication,authorization,deleteCart) //Mubashir
 
 
 //Order's Api
-router.post("/users/:userId/orders",authentication,authorization,orderCreation)
-router.put("/users/:userId/orders",authentication,authorization,updateOrder)
+router.post("/users/:userId/orders",authentication,authorization,orderCreation) // Chandu
+router.put("/users/:userId/orders",authentication,authorization,updateOrder) // Arup
 
 
 
