@@ -267,7 +267,7 @@ const deleteCart = async (req, res) => {
         let userIdFromToken = req.userId
 
         if (!isValidObjectId(userId)) {
-             return res.status(400).send({ status: false, message: "Invalid User Id" })
+             return res.status(404).send({ status: false, message: "Invalid User Id" })
          }
         /* if (!isValidObjectId(userIdFromToken)) {
              return res.status(404).send({ status: false, message: `Token is not Valid` })

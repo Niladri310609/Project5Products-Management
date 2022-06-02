@@ -217,22 +217,17 @@ const updateUser = async (req, res) => {
         let { fname, lname, phone, email, password, address, profileImage} = requestBody //destructing body
         let userId = req.params.userId
         let userIdFromToken = req.userId;  
-        
+        let files = req.files
        // ============================= validation for inputs =============================
         
-        if (!isValidRequestBody(requestBody)) {
+        if ((!files) && Object.keys(requestBody).length == 0) {
             return res.status(400).send({ status: false, message: "Input field cannot be empty" })
         }
-       if(profileImage){
-           let files = req.files
+             
         if(files && files.length>0){
             
             var updatedProfileImage= await uploadFile( files[0] )
-        }
-        else{
-           return res.status(400).send({ msg: "No file found" })
-        }
-    }
+        }   
    
        if (!isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: `${userId} is not a valid user id` })

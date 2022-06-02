@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
-const {isValidObjectId} = require('../validation/validation')
+const userModel = require('../models/userModel')
+const { isValidObjectId } = require('../validation/validation')
 
 const authentication = async (req, res, next) => {
     try {
@@ -10,17 +11,19 @@ const authentication = async (req, res, next) => {
         }
 
         let T = token.split(' ')
-        //console.log(T)
-        let timeOut = jwt.decode(T[1], 'Hercules')
-        console.log(T[0], T[1])
+        let decodedToken = jwt.verify(T[1], "Hercules", {ignoreExpiration: true})
 
-        
+        if (!decodedToken){
+            return res.status(400).send({ status: false, massage: "token is invalid" })
+        }
+
+        let timeOut = decodedToken.exp
 
         if (Date.now() > (timeOut.exp) * 1000) {
             return res.status(401).send({ status: false, message: `Session Expired, please login again` })
         }
 
-        req.userId = timeOut.userId
+        req.userId = decodedToken.userId
 
         next()
     } catch (error) {
@@ -29,20 +32,25 @@ const authentication = async (req, res, next) => {
     }
 }
 
-const authorization = (req, res, next) => {
+const authorization =async (req, res, next) => {
 
     try {
 
         let tokenUserId = req.userId
         let userId = req.params.userId
+
         
-//console.log(userId)
-      if (!isValidObjectId(userId)) {
-    return res.status(400).send({ status: false, message: "Invalid User Id" })
-}
+        if (!isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: "Invalid User Id" })
+        }
+
+        const userExist = await userModel.findOne({_id:userId})
+        if(!userExist){
+            return res.status(404).send({ status: false, message: "User Id does not exist" })
+        }
 
         if (tokenUserId.toString() !== userId) {
-            return res.status(403).send({ status: false, message: "unauthorized access" })
+            return res.status(403).send({ status: false, message: "unathorized access" })
         }
         next()
 
@@ -50,4 +58,4 @@ const authorization = (req, res, next) => {
         res.status(500).send({ status: false, message: error.message });
     }
 }
-    module.exports = { authentication,authorization}
+module.exports = { authentication, authorization }

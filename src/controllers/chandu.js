@@ -2,6 +2,9 @@ const mongoose = require('mongoose')
 const aws = require('../controllers/awsUpload')
 const productModel = require('../models/productModel')
 const validator = require('../validation/validation')
+
+
+
 const produtCreate = async (req, res) => {
     try{
 
@@ -149,15 +152,17 @@ const createCart = async (req, res) => {
         let prices = productExsists[0].price
     
         let cartExists = await cartModel.findOne({ userId: userId})
+         console.log(cartExists)
         
     
         if (cartExists) {
 
              let cartExists1 = await cartModel.findOne({ userId: userId,_id:cartId})
+            
+             if (!cartId) return res.status(400).send({ status: false, message: ` cart Id is has been genrated already please enter the cart Id` })
 
             if(!cartExists1) return res.status(400).send({ status: false, message: ` cart ID cart is not mathced with this user ID` })
     
-            if (!cartId) return res.status(400).send({ status: false, message: ` cart Id is has been genrated already please enter the cart Id` })
     
             if(cartId) 
             {
@@ -196,5 +201,6 @@ const createCart = async (req, res) => {
         res.status(500).send({ satus: false, error: e.message })
     }
 }
+
 
 module.exports = { produtCreate,createCart}
