@@ -1,19 +1,25 @@
 const express = require('express')
 const router = express.Router()
+
 const{createUser,loginUser,updateUser,getById} =require('../controllers/userController')
 const { authentication,authorization} = require('../middleware/auth')
 const {updateProduct,createProduct,getProduct,getProductById,deleteProductById} = require('../controllers/productController')
 const{cartCreation,getCart,updateCart,deleteCart}= require('../controllers/cartController')
 const{orderCreation,updateOrder} = require("../controllers/orderController")
+
+
+
+
+
 //User's Api
 router.post("/register",createUser)
-router.post("/userLogin",loginUser)
-router.get("/getuser/:userId",authentication,getById)
-router.put("/updateUser/:userId",authentication,authorization,updateUser)
+router.post("/login",loginUser)
+router.get("/user/:userId/profile",authentication,getById)
+router.put("/user/:userId/profile",authentication,authorization,updateUser)
 
 //product's Api
-router.post("/createProduct",createProduct)
-router.get("/getProductByfilter",getProduct)
+router.post("/products",createProduct)
+router.get(" /products",getProduct)
 router.get("/products/:productId",getProductById)
 router.put("/products/:productId",updateProduct)
 router.delete("/products/:productId",deleteProductById)
