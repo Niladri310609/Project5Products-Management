@@ -11,12 +11,15 @@ const authentication = async (req, res, next) => {
         }
 
         let T = token.split(' ')
-        let decodedToken = jwt.verify(T[1], "Hercules", {ignoreExpiration: true})
 
-        if (!decodedToken){
-            return res.status(401).send({ status: false, massage: "token is invalid" })
-        }
+         try{
 
+
+        var decodedToken = jwt.verify(T[1], "Hercules", {ignoreExpiration: true})
+    
+    }catch (error){
+        return res.status(401).send({ status: false, massage: "token is invalid" })
+    }
         let timeOut = decodedToken.exp
 
         if (Date.now() > (timeOut.exp) * 1000) {
@@ -50,7 +53,7 @@ const authorization =async (req, res, next) => {
         }
 
         if (tokenUserId.toString() !== userId) {
-            return res.status(403).send({ status: false, message: "unathorized access" })
+            return res.status(403).send({ status: false, message: "unauthorized access" })
         }
         next()
 

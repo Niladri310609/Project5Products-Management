@@ -3,7 +3,7 @@ const router = express.Router()
 
 const{createUser,loginUser,updateUser,getById} =require('../controllers/userController')
 const { authentication,authorization} = require('../middleware/auth')
-const {updateProduct,/*createProduct,*/getProduct,getProductById,deleteProductById} = require('../controllers/productController')
+const {updateProduct,createProduct,getProduct,getProductById,deleteProductById} = require('../controllers/productController')
 const{/*cartCreation,*/getCart,updateCart,deleteCart}= require('../controllers/cartController')
 const{orderCreation,updateOrder} = require("../controllers/orderController")
 const{produtCreate,createCart} = require("../controllers/chandu")
@@ -19,7 +19,7 @@ router.get("/user/:userId/profile",authentication,getById) // CHANDU
 router.put("/user/:userId/profile",authentication,authorization,updateUser) //Mubashir
 
 //product's Api
-router.post("/products",produtCreate) // Arup
+router.post("/products",createProduct) // Arup
 router.get("/products",getProduct) // Nil
 router.get("/products/:productId",getProductById) // Mubashir
 router.put("/products/:productId",updateProduct) //Chandu
@@ -27,7 +27,7 @@ router.delete("/products/:productId",deleteProductById) //Mubashir
 
 //Cart's Api
 router.post("/users/:userId/cart",authentication,authorization,createCart)//Nil
-router.get("/users/:userId/cart",authentication,getCart) // Arup
+router.get("/users/:userId/cart",authentication,authorization,getCart) // Arup
 router.put("/users/:userId/cart",authentication,authorization,updateCart) //Chandu
 router.delete("/users/:userId/cart",authentication,authorization,deleteCart) //Mubashir
 

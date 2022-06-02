@@ -248,7 +248,7 @@ const updateCart = async function (req, res) {
 
                 const product = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": -1, totalPrice: -getPrice } }, { new: true })
 
-                return res.status(200).send({ status: true, message: 'sucessfully decrease one qty of product', data: product })
+                return res.status(200).send({ status: true, message: 'sucessfully decrease one quantity of product', data: product })
             }
         }
 

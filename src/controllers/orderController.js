@@ -30,14 +30,37 @@ const orderCreation = async (req, res) => {
             return res.status(400).send({ status: false, message: `Invalid cartId in request body.` });
 
         }
-        if(cancellable == ""){
-            return res.status(400).send({status:false, message: "cancellable cannot be empty"})
+        // if((cancellable=="" && cancellable !=false) || cancellable){
+        //     return res.status(400).send({status:false, message: "cancellable cannot be empty"})
+        // }
+
+        if(cancellable && typeof cancellable !=='boolean'){
+            return res.status(400).send({ status: false, message: "Cancellable must be either true or false" }) 
         }
-        if (cancellable) {
-            if ( typeof cancellable != "boolean") {
+        
+        console.log(cancellable , "hii")
+        if (cancellable || cancellable==false) {
+           /* if(cancellable ==""){
+                return res.status(400).send({status:false, message: "cancellable cannot be empty"})
+            }*/
+            
+            /*if (typeof cancellable=="String" || typeof cancellable != "boolean") {
+                
                 return res.status(400).send({ status: false, message: `Cancellable must be either 'true' or 'false'.` });
+            }*/
+            if(!(cancellable==false || cancellable==true)){
+                return res.status(400).send({ status: false, message: "Cancellable must be either true or false" }) 
             }
+        } 
+
+        if(cancellable && typeof cancellable !="boolean"){
+            cancellable=cancellable
         }
+        else{
+            cancellable=false
+        }
+
+    
 
         if (status) {
             if (status !== 'pending') {

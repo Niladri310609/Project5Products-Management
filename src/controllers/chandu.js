@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const aws = require('../controllers/awsUpload')
 const productModel = require('../models/productModel')
-const validator = require('../validation/validation')
+const { isValid, isValidRequestBody,isValidObjectId,validQuantity} = require('../validation/validation')
 const userModel = require('../models/userModel')
 const cartModel = require('../models/cartModel')
 
@@ -115,32 +115,33 @@ res.status(500).send({ status: false, message: e.message })
 const createCart = async (req, res) => {
     try {
         const data = req.body   
-
-       
+        
         let userId = req.params.userId
         
-        userId=userId ?.toString().trim()
+        userId=userId.toString().trim()
 
         let  {productId, cartId } = data
         
-        productId=productId ?.toString().trim()
+        productId=productId.toString().trim()
         
-        if (!validator.isValidRequestBody(data)) return res.status(400).send({ status: false, message: `please provide body data` })
+    
+        if (!(isValidRequestBody(data))) return res.status(400).send({ status: false, message: `please provid body data` })
 
+       
 
-        if (!validator.isValid(productId)) return res.status(400).send({ status: false, message: `please enter the product ID` })
+        if (!isValid(productId)) return res.status(400).send({ status: false, message: `please enter the product ID` })
          if(cartId) {
         
          cartId=cartId.toString().trim()
         
-         if (!validator.isValid(cartId)) return res.status(400).send({ status: false, message: `please enter the cart ID` })
+         if (!isValid(cartId)) return res.status(400).send({ status: false, message: `please enter the cart ID` })
         
-         if(!validator.isValidObjectId(cartId)) return res.status(400).send({ status: false, message: `Cart ID is not valid ` })
+         if(!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: `Cart ID is not valid ` })
          }
 
-        if (!validator.isValidObjectId(productId)) return res.status(400).send({ status: false, message: `please enter  the valid product Id` })
+        if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: `please enter the valid product Id` })
 
-        if (!validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: `please enter  the valid user Id` })
+        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: ` please enter the valid user Id` })
 
         let userExsists = await userModel.findById(userId)
 
@@ -153,7 +154,7 @@ const createCart = async (req, res) => {
         let prices = productExsists[0].price
     
         let cartExists = await cartModel.findOne({ userId: userId})
-         //console.log(cartExists)
+         console.log(cartExists)
         
     
         if (cartExists) {
@@ -186,7 +187,7 @@ const createCart = async (req, res) => {
                      }  
               , { new: true})
 
-                return res.status(201).send({ status: true, message: `product is added to the cart`, data: addingPrduct })
+                return res.status(200).send({ status: true, message: `product is added to the cart`, data: addingPrduct })
             }
         }
          let newItems1={

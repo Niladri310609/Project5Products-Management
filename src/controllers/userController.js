@@ -234,7 +234,11 @@ const updateUser = async (req, res) => {
         if(files && files.length>0){
             
             var updatedProfileImage= await uploadFile( files[0] )
-        }   
+        }
+        if(files)
+        if(files.length ==0){
+            return res.status(400).send({status:false, message : "please upload files"})
+        }
    
        if (!isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: `${userId} is not a valid user id` })

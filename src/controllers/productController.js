@@ -18,7 +18,7 @@ const createProduct = async (req, res) => {
         }
 
 
-        const { title, description, price, currencyId, isFreeShipping, style, availableSizes,installments } = requestBody;
+        const { title, description, price, currencyId,currencyFormat,isFreeShipping, style, availableSizes,installments } = requestBody;
 
         //========================================== validations for title ================================================ 
 
@@ -63,7 +63,7 @@ const createProduct = async (req, res) => {
             return res.status(400).send({ status: false, message: 'currencyId should be INR' })
         }
         if(!(currencyFormat == "₹")){
-            return res.status(400).send({status:false , message: "currencyformat should be Ruppee"})
+            return res.status(400).send({status:false , message: "currencyformat should be ₹"})
         }
         //========================================== validations for installments ================================================ 
         if (installments) {
@@ -197,7 +197,7 @@ const getProduct = async function (req, res) {
             priceGreaterThan = priceGreaterThan.toString().trim()
 
             if (!isValidNumber(priceGreaterThan)) {
-                return res.status(400).send({ status: false, message: "Price greater than must have valid Numbers" })
+                return res.status(400).send({ status: false, message: "priceGreaterThan must have valid Numbers" })
             }
             filter.price = { $gt: priceGreaterThan }
         }
@@ -206,7 +206,7 @@ const getProduct = async function (req, res) {
             priceLessThan = priceLessThan.toString().trim()
 
             if (!isValidNumber(priceLessThan)) {
-                return res.status(400).send({ status: false, message: "Price less than must have valid Numbers" })
+                return res.status(400).send({ status: false, message: "priceLessThan must have valid Numbers" })
             }
             filter.price = { $lt: priceLessThan }
         }
@@ -257,7 +257,7 @@ const getProduct = async function (req, res) {
 const getProductById = async (req, res) => {
 
     try {
-        let productId = req.params.productId.tostring().trim()
+        let productId = req.params.productId?.toString().trim()
         //==============================================================  Validations for ObjectId ============================================================== 
         if (!isValidObjectId(productId)) {
             return res.status(400).send({ status: false, message: "Invalid Product Id" })
@@ -294,9 +294,9 @@ const updateProduct = async function (req, res) {
 
 
 
-        //========================================== validations for ObjectId ================================================
+        //========================================== validations for ObjectId && input Body================================================
         if (!isValidObjectId(productId)) {
-            return res.status(404).send({ status: false, message: `${productId} is not a valid product id` })
+            return res.status(400).send({ status: false, message: `${productId} is not a valid product id` })
         }
 
         if ((!files) && Object.keys(requestBody).length == 0) {
@@ -306,7 +306,7 @@ const updateProduct = async function (req, res) {
          //============================================================================== validaiton for Upload for file==============================================================================
          if (files) {
            
-            if ((files || files.length == 0)) return res.status(400).send({ status: false, message: "Please upload any file to Update" })
+            //if ((files || files.length == 0)) return res.status(400).send({ status: false, message: "Please upload any file to Update" })
           if ((files && files.length > 0)) {
 
               let updatedproductImage = await uploadFile(files[0]);
@@ -315,6 +315,7 @@ const updateProduct = async function (req, res) {
                   updatedProductDetails['productImage'] = updatedproductImage
           }
       }
+ // =========================================================Finding the Product ================================
 
         const product = await productModel.findOne({ _id: productId, isDeleted: false })
 
@@ -458,7 +459,7 @@ const deleteProductById = async (req, res) => {
 
     try {
 
-        let productId = req.params.productId.toString().trim()
+        let productId = req.params.productId?.toString().trim()
         //============================================================================== validations for ObjectId==============================================================================
 
 
@@ -472,14 +473,14 @@ const deleteProductById = async (req, res) => {
         let checkProduct = await productModel.findOne({ _id: productId, isDeleted: false })
 
         if (!checkProduct) {
-            return res.status(404).send({ status: false, message: "Product doesn't exits" })
+            return res.status(404).send({ status: false, message: "Product doesn't exist" })
         }
         //==============================================================================after checking the deletion of the product ==============================================================================
 
 
         let deletedProduct = await productModel.findOneAndUpdate({ _id: productId }, { $set: { isDeleted: true, deletedAt: new Date() } }, { new: true })
 
-        return res.status(200).send({ status: true, message: "Product Deleted Succesfully", })
+        return res.status(200).send({ status: true, message: "Product Deleted Succesfully", data:deletedProduct })
 
     } catch (error) {
         res.status(500).send({ status: false, message: error.message });
