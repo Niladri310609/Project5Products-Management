@@ -19,13 +19,13 @@ router.put("/user/:userId/profile",authentication,authorization,updateUser) //Mu
 
 //product's Api
 router.post("/products",createProduct) // Arup
-router.get(" /products",getProduct) // Nil
+router.get("/products",getProduct) // Nil
 router.get("/products/:productId",getProductById) // Mubashir
 router.put("/products/:productId",updateProduct) //Chandu
 router.delete("/products/:productId",deleteProductById) //Mubashir
 
 //Cart's Api
-router.post("/users/:userId/cart",authentication,authorization,cartCreation) //Nil
+router.post("/users/:userId/cart",authentication,cartCreation,authorization)//Nil
 router.get("/users/:userId/cart",authentication,getCart) // Arup
 router.put("/users/:userId/cart",authentication,authorization,updateCart) //Chandu
 router.delete("/users/:userId/cart",authentication,authorization,deleteCart) //Mubashir

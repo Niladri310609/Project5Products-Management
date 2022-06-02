@@ -234,7 +234,7 @@ const getProduct = async function (req, res) {
             priceSort = 1
         }
 
-        console.log(filter)
+       // console.log(filter)
         const getData = await productModel.find(filter).sort({ price: priceSort })
 
         if (getData.length == 0) {

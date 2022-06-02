@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-
+const {isValidObjectId} = require('../validation/validation')
 
 const authentication = async (req, res, next) => {
     try {
@@ -42,7 +42,7 @@ const authorization = (req, res, next) => {
 }
 
         if (tokenUserId.toString() !== userId) {
-            return res.status(403).send({ status: false, message: "unathorized access" })
+            return res.status(403).send({ status: false, message: "unauthorized access" })
         }
         next()
 
