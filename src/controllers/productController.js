@@ -173,7 +173,7 @@ const getProduct = async function (req, res) {
             size = [size].flat()
             
             if (size && !isValidSize(size)) {
-                return res.status(400).send({ status: false, message: `Size Must be of these values ---> "S", "XS","M","X", "L","XXL", "XL" ` })
+                return res.status(400).send({ status: false, message: "Size Must be of these values ---> S, XS, M, X, L, XXL, XL" })
                 
             }
            
@@ -215,8 +215,8 @@ const getProduct = async function (req, res) {
             if (priceGreaterThan == priceLessThan ) {
                 return res.status(400).send({ status: false, message: "priceGreaterThan and priceLessThan can not be the equal " })
             }
-            if ( priceGreaterThan << priceLessThan) {
-                return res.status(400).send({ status: false, message: "priceGreaterThan can not be less than priceLessThan" })
+            if ( priceGreaterThan > priceLessThan) {
+                return res.status(400).send({ status: false, message: "priceGreaterThan can not be more than priceLessThan" })
             }
 
             filter.price = { $gt: priceGreaterThan, $lt: priceLessThan }

@@ -238,9 +238,9 @@ const updateUser = async (req, res) => {
             return res.status(400).send({ status: false, message: `${userId} is not a valid user id` })
 
         }
-       /* if (!isValidObjectId(userIdFromToken)) {
+        if (!isValidObjectId(userIdFromToken)) {
             return res.status(400).send({ status: false, message: `Token is not Valid` })
-        }*/
+        }
 
         //============================== checking User Id and Authorization=============================
 
@@ -251,11 +251,7 @@ const updateUser = async (req, res) => {
                 message: `User doesn't exists by ${userId}`
             })
         }
-        /*if (findUserProfile._id.toString() != userIdFromToken) {
-            return res.status(403).send({ status: false, message: `Unauthorized access! User's info doesn't match` });
-
-        }*/
-
+        
         //====================================================validation for fname
         if (fname == "") {
             return res.status(400).send({ status: false, message: "fname cannot be empty" })

@@ -37,6 +37,9 @@ const authorization = (req, res, next) => {
         let userId = req.params.userId
         
 //console.log(userId)
+      if (!isValidObjectId(userId)) {
+    return res.status(400).send({ status: false, message: "Invalid User Id" })
+}
 
         if (tokenUserId.toString() !== userId) {
             return res.status(403).send({ status: false, message: "unathorized access" })
