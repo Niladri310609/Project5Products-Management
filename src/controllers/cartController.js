@@ -263,24 +263,16 @@ const updateCart = async function (req, res) {
 
 const deleteCart = async (req, res) => {
     try {
-        let userId = req.params.userId
-        let userIdFromToken = req.userId
-
-        if (!isValidObjectId(userId)) {
-             return res.status(404).send({ status: false, message: "Invalid User Id" })
-         }
-        /* if (!isValidObjectId(userIdFromToken)) {
-             return res.status(404).send({ status: false, message: `Token is not Valid` })
-         }*/
-
-        const findUserCart = await cartModel.findOne({ userId:userId})
+        let userId = req.params.userId.toString().trim()
+       
+  const findUserCart = await cartModel.findOne({ userId:userId})
 
         if (!findUserCart) {
             return res.status(404).send({ status: false, message: "No user found" })
         }
     
         if(findUserCart.items.length==0){
-            return res.status(400).send({ status: false, message: "Products are already deleted in the cart" })
+            return res.status(404).send({ status: false, message: "Products are already deleted in the cart" })
         }
        var removedCart = await cartModel.findOneAndUpdate({ userId:userId }, { $set: {items:[],totalItems: 0, totalPrice: 0 } }, { new: true })
         return res.status(204).send({ status: false, message: "Cart deleted succesfully", data: removedCart })

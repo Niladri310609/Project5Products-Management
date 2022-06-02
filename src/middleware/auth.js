@@ -7,14 +7,14 @@ const authentication = async (req, res, next) => {
         const token = req.header('Authorization', 'Bearer Token') || req.header('authorization', 'Bearer Token')
 
         if (!token) {
-            return res.status(401).send({ status: false, message: `Missing authentication token in request` })
+            return res.status(400).send({ status: false, message: `Missing authentication token in request` })
         }
 
         let T = token.split(' ')
         let decodedToken = jwt.verify(T[1], "Hercules", {ignoreExpiration: true})
 
         if (!decodedToken){
-            return res.status(400).send({ status: false, massage: "token is invalid" })
+            return res.status(401).send({ status: false, massage: "token is invalid" })
         }
 
         let timeOut = decodedToken.exp
@@ -37,7 +37,7 @@ const authorization =async (req, res, next) => {
     try {
 
         let tokenUserId = req.userId
-        let userId = req.params.userId
+        let userId = req.params.userId.toString().trim()
 
         
         if (!isValidObjectId(userId)) {

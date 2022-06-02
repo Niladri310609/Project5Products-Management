@@ -2,7 +2,7 @@ const userModel = require('../models/userModel')
 const bcrypt = require('bcryptjs')
 const { uploadFile } = require('../controllers/awsUpload')
 const jwt = require('jsonwebtoken');
-const { isValid, isValidRequestBody, isValidObjectId, isValidEmail, isValidPhone, isValidPincode,validString } = require('../validation/validation')
+const { isValid, isValidRequestBody, isValidObjectId, isValidEmail, isValidPhone, isValidPincode,validString,isValidScripts } = require('../validation/validation')
 //============================================== User Creation ======================================================
 const createUser = async function (req, res) {
     try {
@@ -60,6 +60,10 @@ const createUser = async function (req, res) {
         if (!isValid(address.shipping.street)) {
             return res.status(400).send({ status: false, message: "Street of shipping address is required..." })
         }
+        if(!isValidScripts(address.shipping.street)){
+            return res.status(400).send({status:false, message:"street is invalid (Should Contain Alphabets, numbers, quotation marks  & [@ , . ; : ? & ! _ - $]."})
+        }
+        
 
         if (!isValid(address.shipping.city)) {
             return res.status(400).send({ status: false, message: "City of shipping address is required..." })
@@ -82,10 +86,13 @@ const createUser = async function (req, res) {
         }
 
         //============================================= Validations for email and password ===============================
-
-        // if (!isValidPhone(phone)) {
-        //     return res.status(400).send({ status: false, message: "please enter a valid Phone no" });
-        // }
+         if(phone =="") return res.status(400).send({status:false , message : "Phone Number cannot be empty"})
+        
+        if(phone){
+        if (!isValidPhone(phone)) {
+            return res.status(400).send({ status: false, message: "please enter a valid Phone no" });
+        }
+    }
 
         const isRegisteredphone = await userModel.findOne({ phone }).lean();
 
@@ -316,7 +323,7 @@ const updateUser = async (req, res) => {
                 return res.status(400).send({ status: false, message: "Invalid request parameter, please provide password" })
             }
             
-            var encryptedPassword = await bcrypt.hash(tempPassword, saltRounds)
+            var encryptedPassword = await bcrypt.hash(tempPassword,6)
         }
  //============================== validation for Address ===================================
         if (address) {

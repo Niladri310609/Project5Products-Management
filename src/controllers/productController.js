@@ -18,7 +18,7 @@ const createProduct = async (req, res) => {
         }
 
 
-        const { title, description, price, currencyId, isFreeShipping, style, availableSizes, installments } = requestBody;
+        const { title, description, price, currencyId, isFreeShipping, style, availableSizes,installments } = requestBody;
 
         //========================================== validations for title ================================================ 
 
@@ -62,7 +62,7 @@ const createProduct = async (req, res) => {
         if (!(currencyId == "INR")) {
             return res.status(400).send({ status: false, message: 'currencyId should be INR' })
         }
-        if(!(currencyformat == "₹")){
+        if(!(currencyFormat == "₹")){
             return res.status(400).send({status:false , message: "currencyformat should be Ruppee"})
         }
         //========================================== validations for installments ================================================ 
@@ -183,11 +183,12 @@ const getProduct = async function (req, res) {
 
         if (name) {
             name = name.toString().trim()
-
+            
             if (!isValid(name)) {
 
                 return res.status(400).send({ status: false, message: "name must be a valid string" })
             }
+            if(name.length < 2) return res.status(400).send({ status: false, message: "name must be at least 2 letters" })
             filter.title = { $regex: name, $options: 'i' }
         }
 
@@ -215,9 +216,10 @@ const getProduct = async function (req, res) {
             if (priceGreaterThan == priceLessThan ) {
                 return res.status(400).send({ status: false, message: "priceGreaterThan and priceLessThan can not be the equal " })
             }
-            if ( priceGreaterThan >> priceLessThan) {
+            /*if ( priceGreaterThan > priceLessThan) {
+               //console.log(priceGreaterThan,priceLessThan)
                 return res.status(400).send({ status: false, message: "priceGreaterThan can not be more than priceLessThan" })
-            }
+            }*/
 
             filter.price = { $gt: priceGreaterThan, $lt: priceLessThan }
         }
@@ -235,13 +237,13 @@ const getProduct = async function (req, res) {
         }
 
        // console.log(filter)
-        const getData = await productModel.find(filter).sort({ price: priceSort })
+        const getData = await productModel.find(filter).sort({ price: priceSort }).select({__v:0})
 
         if (getData.length == 0) {
 
             return res.status(404).send({ status: false, message: "Product not found" })
         }
-        return res.status(200).send({ status: true, data: getData })
+        return res.status(200).send({ status: true,message:"Success", data: getData })
     }
     catch (error) {
         return res.status(500).send({ status: false, error: error.message })
@@ -255,10 +257,10 @@ const getProduct = async function (req, res) {
 const getProductById = async (req, res) => {
 
     try {
-        let productId = req.params.productId
+        let productId = req.params.productId.tostring().trim()
         //==============================================================  Validations for ObjectId ============================================================== 
         if (!isValidObjectId(productId)) {
-            return res.status(404).send({ status: false, message: "Invalid Product Id" })
+            return res.status(400).send({ status: false, message: "Invalid Product Id" })
         }
 
         //============================================================== Finding Products ============================================================== 
@@ -285,12 +287,34 @@ const getProductById = async (req, res) => {
 const updateProduct = async function (req, res) {
     try {
         let requestBody = req.body
-       
+        let files= req.files
         let productId = req.params.productId
+    
+    const{ title, description, price, currencyId, isFreeShipping,style, availableSizes, installments } = requestBody;
+
+
+
         //========================================== validations for ObjectId ================================================
         if (!isValidObjectId(productId)) {
             return res.status(404).send({ status: false, message: `${productId} is not a valid product id` })
         }
+
+        if ((!files) && Object.keys(requestBody).length == 0) {
+            return res.status(400).send({ status: false, message: "Input field cannot be empty" })
+        }
+
+         //============================================================================== validaiton for Upload for file==============================================================================
+         if (files) {
+           
+            if ((files || files.length == 0)) return res.status(400).send({ status: false, message: "Please upload any file to Update" })
+          if ((files && files.length > 0)) {
+
+              let updatedproductImage = await uploadFile(files[0]);
+
+              if (!updatedProductDetails.hasOwnProperty('productImage'))
+                  updatedProductDetails['productImage'] = updatedproductImage
+          }
+      }
 
         const product = await productModel.findOne({ _id: productId, isDeleted: false })
 
@@ -300,14 +324,7 @@ const updateProduct = async function (req, res) {
         if (requestBody.isDeleted && requestBody.isDeleted != "false") {
             return res.status(400).send({ status: false, data: "isDeleted must be false" })
         }
-        //=============================================== input Body validations ================================================
-
-        if (!(isValidRequestBody(requestBody) || files)) {
-            return res.status(400).send({ status: false, message: 'Please Input data for Updation' })
-        }
-        //==============================================================================destructuring================================================
-        const { title, description, price, currencyId, isFreeShipping,productImage, style, availableSizes, installments } = requestBody;
-
+       
         const updatedProductDetails = {}  // considering a empty object
 
         //=============================================== Validations for title===============================
@@ -382,22 +399,7 @@ const updateProduct = async function (req, res) {
         }
 
 
-        //============================================================================== validaiton for Upload for file==============================================================================
-
-
         
-        if (productImage) {
-            let productImage = req.files;
-            
-            if ((productImage || productImage.length == 0)) return res.status(400).send({ status: false, message: "Please upload any file to Update" })
-            if ((productImage && productImage.length > 0)) {
-
-                let updatedproductImage = await uploadFile(productImage[0]);
-
-                if (!updatedProductDetails.hasOwnProperty('productImage'))
-                    updatedProductDetails['productImage'] = updatedproductImage
-            }
-        }
         //==============================================================================validations for style==============================================================================
         if (style == "") {
             return res.status(400).send({ status: false, message: "style cannot be empty" })
@@ -456,12 +458,12 @@ const deleteProductById = async (req, res) => {
 
     try {
 
-        let productId = req.params.productId
+        let productId = req.params.productId.toString().trim()
         //============================================================================== validations for ObjectId==============================================================================
 
 
         if (!isValidObjectId(productId)) {
-            return res.status(404).send({ status: false, message: "Invalid Product Id" })
+            return res.status(400).send({ status: false, message: "Invalid Product Id" })
         }
 
         //==============================================================================Checking the produc's existance in the Db==============================================================================
