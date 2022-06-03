@@ -10,7 +10,11 @@ const orderCreation = async (req, res) => {
         let userId = req.params.userId;
         let requestBody = req.body;
         let userIdFromToken = req.userId
-        let { cartId, cancellable, status } = requestBody;
+        let { cartId, status, cancellable } = requestBody;
+
+        if(requestBody.hasOwnProperty('cancellable')){
+            return res.status(400).send({ status: false, message: `cancellable not allowed while creation of order` })
+        }
 
 
         if (!isValidObjectId(userId)) {
@@ -30,38 +34,7 @@ const orderCreation = async (req, res) => {
             return res.status(400).send({ status: false, message: `Invalid cartId in request body.` });
 
         }
-        // if((cancellable=="" && cancellable !=false) || cancellable){
-        //     return res.status(400).send({status:false, message: "cancellable cannot be empty"})
-        // }
-
-        if(cancellable && typeof cancellable !=='boolean'){
-            return res.status(400).send({ status: false, message: "Cancellable must be either true or false" }) 
-        }
-        
-        console.log(cancellable , "hii")
-        if (cancellable || cancellable==false) {
-           /* if(cancellable ==""){
-                return res.status(400).send({status:false, message: "cancellable cannot be empty"})
-            }*/
-            
-            /*if (typeof cancellable=="String" || typeof cancellable != "boolean") {
-                
-                return res.status(400).send({ status: false, message: `Cancellable must be either 'true' or 'false'.` });
-            }*/
-            if(!(cancellable==false || cancellable==true)){
-                return res.status(400).send({ status: false, message: "Cancellable must be either true or false" }) 
-            }
-        } 
-
-        if(cancellable && typeof cancellable !="boolean"){
-            cancellable=cancellable
-        }
-        else{
-            cancellable=false
-        }
-
-    
-
+       
         if (status) {
             if (status !== 'pending') {
                 return res.status(400).send({ status: false, message: "status must be Pending during creation of order" })
@@ -73,19 +46,12 @@ const orderCreation = async (req, res) => {
         if (!searchUser) {
             return res.status(404).send({ status: false, message: `user doesn't exist for ${userId}` });
         }
-       /* if (searchUser._id.toString() != userIdFromToken) {
-            return res.status(403).send({ status: false, message: `Unauthorized access! User's info doesn't match` });
-
-        }*/
-
-        
+             
         const searchCartDetails = await cartModel.findOne({ _id: cartId, userId: userId });
 
         if (!searchCartDetails) {
             return res.status(404).send({ status: false, message: `Cart doesn't belongs to ${userId}` });
         }
-
-       
 
         if (!searchCartDetails.items.length) {
             return res.status(404).send({ status: false, message: `Please add some product in cart to make an order.` });

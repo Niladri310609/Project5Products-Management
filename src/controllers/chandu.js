@@ -14,7 +14,7 @@ const produtCreate = async (req, res) => {
 
     let data = req.body
     //----------------body validation-------
-    if (!validator.isValidRequestBody(data)) return res.status(400).send({ status: false, message: 'give the product details' })
+    if (!isValidRequestBody) return res.status(400).send({ status: false, message: 'give the product details' })
     //------------------------------------------------
     let datas = JSON.parse(data.data)
 
@@ -41,13 +41,14 @@ const produtCreate = async (req, res) => {
     const splitingString = (Arr) => {
                    
              console.log(Arr)
-            let brr = Arr.split(',')
+            let brr = Arr?.split(',')
             
             return brr
         }
       
         let availableSizes=splitingString(datas.availableSizes)
-      
+        console.log(availableSizes)
+    if(!availableSizes) return res.status(400).send({status:false,message:`availablesSIzes must be at least  one of this sizes "S, XS, M, X, L,XXL, XL`})  
     if (datas.availableSizes) {
            for (let i = 0; i < availableSizes.length; i++) {
                
@@ -68,12 +69,19 @@ const produtCreate = async (req, res) => {
       
         if (key == 'undefined') key = castings()
       
-        if (!validator.isValid(key)) return res.status(400).send({ status: false, message: `please enter the ${arr1[i]}` })
+        if (!isValid(key)) return res.status(400).send({ status: false, message: `please enter the ${arr1[i]}` })
     }
     //---------------------------------------
-    if(!validator.isValidNumber(price))  return res.status(400).send({ status: false, message: `the price must be number` })
     
-    if(!validator.isValidNumber(installments))  return res.status(400).send({ status: false, message: `the  instalment must be number` })
+    if(isValidNumber(title))  return res.status(400).send({ status: false, message: `the title can't be only number` })
+    
+    if(isValidNumber(description))  return res.status(400).send({ status: false, message: `the title can't be only number` })
+    
+    if(isValidNumber(style))  return res.status(400).send({ status: false, message: `the title can't be only number` })
+    
+    if(!isValidNumber(price))  return res.status(400).send({ status: false, message: `the price must be number` })
+    
+    if(!isValidNumber(installments))  return res.status(400).send({ status: false, message: `the  instalment must be number` })
     
     if(installments<0)   return res.status(400).send({ status: false, message: `the installment can't be less than zero` })
     
