@@ -10,11 +10,11 @@ const createCart = async (req, res) => {
         
         let userId = req.params.userId
         
-        userId=userId.toString().trim()
+        userId=userId?.toString().trim()
 
         let  {productId, cartId } = data
         
-        productId=productId.toString().trim()
+        productId=productId?.toString().trim()
         
     
         if (!(isValidRequestBody(data))) return res.status(400).send({ status: false, message: `please provid body data` })
@@ -24,7 +24,7 @@ const createCart = async (req, res) => {
         if (!isValid(productId)) return res.status(400).send({ status: false, message: `please enter the product ID` })
          if(cartId) {
         
-         cartId=cartId.toString().trim()
+         cartId=cartId?.toString().trim()
         
          if (!isValid(cartId)) return res.status(400).send({ status: false, message: `please enter the cart ID` })
         
