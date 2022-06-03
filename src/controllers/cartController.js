@@ -79,7 +79,7 @@ const createCart = async (req, res) => {
                      }  
               , { new: true})
 
-                return res.status(200).send({ status: true, message: `product is added to the cart`, data: addingPrduct })
+                return res.status(201).send({ status: true, message: `product is added to the cart`, data: addingPrduct })
             }
         }
          let newItems1={

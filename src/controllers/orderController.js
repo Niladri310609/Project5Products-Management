@@ -82,7 +82,7 @@ const orderCreation = async (req, res) => {
             },
         })
     };
-        return res.status(200).send({ status: true, message: "Order placed.", data: savedOrder });
+        return res.status(201).send({ status: true, message: "Order placed.", data: savedOrder });
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message });
     }
