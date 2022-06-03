@@ -2,7 +2,7 @@ const userModel = require('../models/userModel')
 const bcrypt = require('bcryptjs')
 const { uploadFile } = require('../controllers/awsUpload')
 const jwt = require('jsonwebtoken');
-const { isValid, isValidRequestBody, isValidObjectId, isValidEmail, isValidPhone, isValidPincode,validString,isValidScripts } = require('../validation/validation')
+const { isValid, isValidRequestBody, isValidObjectId,isValidName, isValidEmail, isValidPhone, isValidPincode,validString,isValidScripts } = require('../validation/validation')
 //============================================== User Creation ======================================================
 const createUser = async function (req, res) {
     try {
@@ -29,10 +29,12 @@ const createUser = async function (req, res) {
         if (!isValid(fname)) {
             return res.status(400).send({ status: false, message: "fname is required..." })
         }
+        if (!isValidName(fname)) return res.status(400).send({ status: false, msg: "Please Enter a valid First Name" })
 
         if (!isValid(lname)) {
             return res.status(400).send({ status: false, message: "lname is required..." })
         }
+        if (!isValidName(lname)) return res.status(400).send({ status: false, msg: "Please Enter a valid last Name" })
 
         if (!(phone)) {
             return res.status(400).send({ status: false, message: "Phone No. is required" })

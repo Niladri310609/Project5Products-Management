@@ -21,6 +21,10 @@ const isValidScripts= function(title){
     const scriptRegex = /^(?![0-9]*$)[A-Za-z0-9\s\-_,\.;:()]+$/
     return scriptRegex.test(title)
 }
+const isValidName = function(name){
+    const nameRegex =/^[A-Za-z]+$/i
+    return nameRegex.test(name)
+}
 
 //validation of  empty string
 const validString = function (value) {
@@ -68,4 +72,4 @@ return true
 }
 
 
-module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail,isValidStatus, isValidScripts,isValidNumber,isValidPhone,isValidPincode,isValidPassword,validString,validInstallment,validQuantity}
+module.exports={isValid,isValidRequestBody,isValidObjectId,isValidEmail,isValidStatus, isValidScripts,isValidNumber,isValidPhone,isValidPincode,isValidPassword,isValidName,validString,validInstallment,validQuantity}
