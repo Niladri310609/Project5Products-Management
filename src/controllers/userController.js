@@ -2,7 +2,7 @@ const userModel = require('../models/userModel')
 const bcrypt = require('bcryptjs')
 const { uploadFile } = require('../controllers/awsUpload')
 const jwt = require('jsonwebtoken');
-const { isValid, isValidRequestBody, isValidObjectId,isValidName, isValidEmail, isValidPhone, isValidPincode,validString,isValidScripts } = require('../validation/validation')
+const { isValid, isValidRequestBody, isValidObjectId,isValidName, isValidEmail, isValidPhone, isValidPincode,validString,isValidScripts,isValidPassword } = require('../validation/validation')
 //============================================== User Creation ======================================================
 const createUser = async function (req, res) {
     try {
@@ -48,6 +48,11 @@ const createUser = async function (req, res) {
         if (!isValid(password)) {
             return res.status(400).send({ status: false, message: "Password is required" })
         }
+         if(!isValidPassword(password)){
+             return res.status(400).send({status:false , messsage: "password is invalid (Should Contain Alphabets, numbers, quotation marks  & [@ , . ; : ? & ! _ - $], and the length should be between 8 to 15"})
+         }
+
+
         if(!address || typeof address !='object'){
             return res.status(400).send({ status: false, message: "Object of address is required" })
         }
@@ -327,6 +332,9 @@ const updateUser = async (req, res) => {
         if (tempPassword) {
             if (!isValid(tempPassword)) {
                 return res.status(400).send({ status: false, message: "Invalid request parameter, please provide password" })
+            }
+            if(!isValidPassword(password)){
+                return res.status(400).send({status:false , messsage: "password is invalid (Should Contain Alphabets, numbers, quotation marks  & [@ , . ; : ? & ! _ - $], and the length should be between 8 to 15"})
             }
             
             var encryptedPassword = await bcrypt.hash(tempPassword,6)

@@ -7,9 +7,14 @@ const { isValid, isValidRequestBody,isValidObjectId,validQuantity} = require('..
 const cartCreation = async (req, res) => {
     try {
         let userId = req.params.userId;
+        userId=userId?.toString().trim()
          let  requestBody = req.body;
          let tokenUserId = req.userId
-        let { quantity, productId } = requestBody;
+
+        let { cartId, productId, quantity } = requestBody; 
+        productId=productId?.toString().trim()
+        cartId= cartId?.toString().trim()
+
 
         if (!isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, message: "Please provide valid request body" });
