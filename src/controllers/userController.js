@@ -237,10 +237,7 @@ const updateUser = async (req, res) => {
             
             var updatedProfileImage= await uploadFile( files[0] )
         }
-        if(files)
-        if(files.length ==0){
-            return res.status(400).send({status:false, message : "please upload files"})
-        }
+       
    
        if (!isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: `${userId} is not a valid user id` })
@@ -264,6 +261,7 @@ const updateUser = async (req, res) => {
         if (fname == "") {
             return res.status(400).send({ status: false, message: "fname cannot be empty" })
         }
+        if (!isValidName(fname)) return res.status(400).send({ status: false, msg: "Please Enter a valid First Name" })
 
         if (fname && !validString(fname)) {
             return res.status(400).send({ status: false, message: 'fname is Required' })
@@ -279,6 +277,8 @@ const updateUser = async (req, res) => {
         if (lname == "") {
             return res.status(400).send({ status: false, message: "lname cannot be empty" })
         }
+        if (!isValidName(lname)) return res.status(400).send({ status: false, msg: "Please Enter a valid Last Name" })
+
         if (lname && !validString(lname)) {
             return res.status(400).send({ status: false, message: 'lname is Required' })
         }
