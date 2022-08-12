@@ -149,7 +149,7 @@ const getProduct = async function (req, res) {
         const valueString = ["size", "name", "priceGreaterThan", "priceLessThan", "priceSort"]
 
         for (let i = 0; i < value.length; i++) {
-            let key = `${value[i]}`
+            let key = `${value[i]}`                         
             if (key == '') {
                 return res.status(400).send({ status: false, message: `${valueString[i]} can not be empty` })
             }
@@ -190,7 +190,7 @@ const getProduct = async function (req, res) {
             }
             if(name.length < 2) return res.status(400).send({ status: false, message: "name must be at least 2 letters" })
             filter.title = { $regex: name, $options: 'i' }
-        }
+        }   
 
         if (priceGreaterThan) {
 
@@ -216,10 +216,10 @@ const getProduct = async function (req, res) {
             if (priceGreaterThan == priceLessThan ) {
                 return res.status(400).send({ status: false, message: "priceGreaterThan and priceLessThan can not be the equal " })
             }
-            /*if ( priceGreaterThan > priceLessThan) {
+            if ( priceGreaterThan > priceLessThan) {
                //console.log(priceGreaterThan,priceLessThan)
                 return res.status(400).send({ status: false, message: "priceGreaterThan can not be more than priceLessThan" })
-            }*/
+            }
 
             filter.price = { $gt: priceGreaterThan, $lt: priceLessThan }
         }
@@ -421,7 +421,7 @@ const updateProduct = async function (req, res) {
                     return res.status(400).send({ status: false, message: `availableSizes should be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
                 }
             }
-            if (!updatedProductDetails.hasOwnProperty(updatedProductDetails, '$set'))
+            if (!updatedProductDetails.hasOwnProperty(updatedProductDetails, "$set"))
                 updatedProductDetails['$set'] = {}
             updatedProductDetails['$set']['availableSizes'] = sizesArray//{ $set: sizesArray }
         }
@@ -488,3 +488,9 @@ const deleteProductById = async (req, res) => {
 }
 
 module.exports = { createProduct, updateProduct, getProduct, getProductById, deleteProductById }
+
+
+ 
+
+
+

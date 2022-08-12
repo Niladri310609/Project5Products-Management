@@ -207,7 +207,7 @@ const updateCart = async function (req, res) {
             return res.status(404).send({ status: false, message: "userId does not exist" })
         }
         if(userIdInDB._id.toString() !==userIdFromToken){
-            return res.status(401).send({status:false, message: "Unauthorized access to user"})
+            return res.status(403).send({status:false, message: "Unauthorized access to user"})
         }
 
         const cartInDB = await cartModel.findOne({ _id: cartId })
